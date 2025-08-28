@@ -9,15 +9,51 @@ import * as fsExtra from 'fs-extra';
 const EMBEDDINGS_MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
 const VECTOR_STORE_PATH = process.env.RAG_WORKING_DIRECTORY ?? './vdb';
 // Папки, которые нужно игнорировать
-const IGNORED_FOLDERS_PATTERNS = [
+const IGNORED_PATTERNS = [
+  // Скрытые директории и файлы
   '**/node_modules/**',
   '**/.git/**',
   '**/.vscode/**',
+  '**/.idea/**', // IntelliJ IDEA
+  '**/.DS_Store/**', // macOS
+  '**/Thumbs.db', // Windows
+
+  // Директории сборки и зависимостей
   '**/dist/**',
   '**/build/**',
-  '**/.next/**',
-  '**/.DS_Store/**',
-  '**/coverage/**',
+  '**/.next/**', // Next.js
+  '**/out/**', // Next.js export
+  '**/coverage/**', // Тесты
+  '**/.nyc_output/**', // NYC coverage
+
+  // Файлы среды и секретов
+  '**/.env*', // .env, .env.local, .env.production и т.д.
+  '**/.npmrc', // npm config
+  '**/.yarnrc', // yarn config
+  '**/yarn.lock',
+  '**/package-lock.json',
+  '**/pnpm-lock.yaml',
+
+  // Логи и временные файлы
+  '**/*.log',
+  '**/tmp/**',
+  '**/temp/**',
+
+  // IDE и редакторы
+  '**/*.swp', // Vim swap files
+  '**/*.swo', // Vim swap files
+  '**/*.swn', // Vim swap files
+  '**/*.tmp', // Generic temp files
+  '**/*.bak', // Backup files
+
+  // Бинарные и нечитаемые файлы (по расширению)
+  '**/*.jpg',
+  '**/*.png',
+  '**/*.gif',
+  '**/*.webp',
+  '**/*.glb',
+  '**/*.jpeg',
+  '**/*.svg',
 ];
 // Расширения файлов по умолчанию
 const DEFAULT_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.md', '.txt'];
@@ -175,21 +211,30 @@ class CodeAwareTextSplitter {
 async function findFiles(
   directoryPath: string,
   extensions: string[],
-  ignoredPatterns: string[] = IGNORED_FOLDERS_PATTERNS
+  ignoredPatterns: string[] = IGNORED_PATTERNS
 ): Promise<string[]> {
   try {
-    // Нормализуем путь к директории до абсолютного
     const absoluteBaseDir = path.resolve(directoryPath);
     console.log(`🔍 Поиск файлов в (абсолютный путь): ${absoluteBaseDir}`);
-    console.log(`🚫 Игнорируемые паттерны: ${ignoredPatterns.join(', ')}`);
+    const searchExtensions = [...extensions];
 
-    // Формируем паттерны включения
-    // fast-glob предпочитает POSIX-пути (/), поэтому используем path.posix
-    const includePatterns = extensions.map((ext) =>
+    // Если в списке расширений нет пустой строки, добавляем её.
+    // Это нужно для поиска файлов БЕЗ расширения, например, `.env`, `Dockerfile`, `LICENSE`.
+    if (!searchExtensions.includes('')) {
+      searchExtensions.push('');
+    }
+
+    // Формируем паттерны включения для ВСЕХ расширений, включая пустое
+    const includePatterns = searchExtensions.map((ext) =>
+      // path.posix.join для совместимости с fast-glob
       path.posix.join(absoluteBaseDir, '**', `*${ext}`)
     );
 
-    console.log(`📈 Паттерны включения: ${includePatterns.join(', ')}`);
+    const enhancedIgnorePatterns = [
+      ...ignoredPatterns,
+      '**/.env', // Явное указание самого файла
+      '**/.env.*', // И файлов вида .env.local, .env.production и т.д.
+    ];
 
     // Используем fast-glob для поиска
     // onlyFiles: true - аналог nodir: true
@@ -198,11 +243,13 @@ async function findFiles(
       cwd: absoluteBaseDir, // Рабочая директория
       absolute: true, // Возвращаем абсолютные пути
       onlyFiles: true, // Только файлы
-      ignore: ignoredPatterns, // Игнорируемые паттерны
+      ignore: enhancedIgnorePatterns, // Игнорируемые паттерны
       dot: true, // Включать скрытые файлы/папки (если нужно)
     });
 
     console.log(`📁 Найдено файлов: ${files.length}`);
+    const env = files.find((it) => it === '.env');
+    console.log('env: ', env);
 
     return files;
   } catch (error) {
