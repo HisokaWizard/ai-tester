@@ -1,0 +1,52 @@
+{
+  "name": "ai-tester",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 vite",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 vite build",
+    "rag:indexer": "NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/rag/runRagIndexer.js",
+    "rag:check": "NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HisokaWizard/ai-tester.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HisokaWizard/ai-tester/issues"
+  },
+  "homepage": "https://github.com/HisokaWizard/ai-tester#readme",
+  "description": "",
+  "dependencies": {
+    "@langchain/community": "^0.3.49",
+    "@langchain/core": "0.3.63",
+    "@langchain/langgraph": "0.3.9",
+    "@langchain/textsplitters": "0.1.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "16.3.0",
+    "@xenova/transformers": "^2.17.2",
+    "axios": "1.5.1",
+    "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.1",
+    "langchain": "^0.3.29",
+    "langchain-gigachat": "0.0.14",
+    "ts-morph": "25.0.1",
+    "xml2js": "0.6.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@typescript-eslint/eslint-plugin": "8.33.1",
+    "@typescript-eslint/parser": "8.33.1",
+    "@vitejs/plugin-react": "4.0.4",
+    "dotenv": "16.5.0",
+    "eslint": "9.28.0",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-react": "7.37.5",
+    "prettier": "3.5.3",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.3",
+    "vite": "4.4.9"
+  }
+}

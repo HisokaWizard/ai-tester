@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Rag Script",
+      "type": "node",
+      "request": "launch",
+      // "runtimeExecutable": "node",
+      // "program": "${workspaceFolder}/src/rag/runRagIndexer.ts",
+      // "args": [
+      //   "${relativeFile}"
+      // ],
+      // "runtimeArgs": [
+      //   "tsx",
+      // ],
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx",
+        "--experimental-network-inspection" // Если требуется
+      ],
+      "args": [
+        "${workspaceFolder}/src/rag/runRagIndexer.ts"
+      ],
+      "protocol": "inspector",
+      "envFile": "${workspaceFolder}/.env",
+      "internalConsoleOptions": "openOnSessionStart",
+    }
+  ]
+}
