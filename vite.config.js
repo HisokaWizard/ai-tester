@@ -23,6 +23,7 @@ export default defineConfig({
       env.RAG_SOURCE_DIRECTORY
     ),
     'process.env.OPEN_AI_API_KEY': JSON.stringify(env.OPEN_AI_API_KEY),
+    'process.env.OPEN_ROUTER_API_KEY': JSON.stringify(env.OPEN_ROUTER_API_KEY),
   },
   build: {
     target: 'node22',
@@ -33,6 +34,10 @@ export default defineConfig({
         main: resolve(__dirname, 'src/index.ts'),
         'rag/runRagIndexer': resolve(__dirname, 'src/rag/runRagIndexer.ts'),
         'tools/ragChecker': resolve(__dirname, 'src/tools/ragChecker.ts'),
+        'agent/agentExampleCodeGenerator': resolve(
+          __dirname,
+          'src/agent-template/agentExampleCodeGenerator.ts'
+        ),
       },
       output: {
         entryFileNames: `[name].js`,
