@@ -38,6 +38,10 @@ export default defineConfig({
           __dirname,
           'src/agent-template/agentExampleCodeGenerator.ts'
         ),
+        'crypto/seed_phrase_generator': resolve(
+          __dirname,
+          'src/crypto/seed_phrase_generator.ts'
+        ),
       },
       output: {
         entryFileNames: `[name].js`,
