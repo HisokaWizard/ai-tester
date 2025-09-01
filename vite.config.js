@@ -24,6 +24,9 @@ export default defineConfig({
     ),
     'process.env.OPEN_AI_API_KEY': JSON.stringify(env.OPEN_AI_API_KEY),
     'process.env.OPEN_ROUTER_API_KEY': JSON.stringify(env.OPEN_ROUTER_API_KEY),
+    'process.env.GIGA_CHAT_ACCESS_TOKEN': JSON.stringify(
+      env.GIGA_CHAT_ACCESS_TOKEN
+    ),
   },
   build: {
     target: 'node22',

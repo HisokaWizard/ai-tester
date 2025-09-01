@@ -55,6 +55,8 @@ export class CustomAgent {
   protected graph: StateGraph<any, any, any, any, any, any> | any;
   protected compiledGraph: Runnable; // Скомпилированный граф
 
+  private chatHistory: BaseMessage[] = [];
+
   constructor(options: AgentOptions) {
     this.model = options.model;
     this.tools = options.tools || [];
@@ -140,39 +142,76 @@ export class CustomAgent {
     input: string | Record<string, any>,
     config?: RunnableConfig
   ): Promise<any> {
-    let initialState: Partial<AgentStateType>;
+    let newMessages: BaseMessage[] = [];
 
     if (typeof input === 'string') {
-      // Если вход - строка, оборачиваем её в сообщение пользователя
-      initialState = { messages: [new HumanMessage(input)] };
+      newMessages = [new HumanMessage(input)];
+    } else if (
+      typeof input === 'object' &&
+      'messages' in input &&
+      Array.isArray(input.messages)
+    ) {
+      newMessages = input.messages;
     } else {
-      // Предполагаем, что вход уже содержит структуру состояния или сообщения
-      // Например: { messages: [...], otherStateField: ... }
-      initialState = input as Partial<AgentStateType>;
+      newMessages = [new HumanMessage(JSON.stringify(input))];
     }
 
+    const initialState: Partial<AgentStateType> = {
+      messages: [...this.chatHistory, ...newMessages],
+    };
+
     const finalState = await this.compiledGraph.invoke(initialState, config);
-    // Возвращаем финальное состояние или последнее сообщение
+
+    this.chatHistory = finalState.messages;
+
     return finalState;
-    // Или, например: return finalState.messages[finalState.messages.length - 1].content;
   }
 
   // --- 8. Метод для асинхронного стриминга ---
   public async *stream(
-    input: string | Record<string, any>,
+    input: string | Record<string, any> | BaseMessage,
     config?: RunnableConfig
   ): AsyncGenerator<any, any, unknown> {
-    let initialState: Partial<AgentStateType>;
+    let newMessages: BaseMessage[] = [];
 
     if (typeof input === 'string') {
-      initialState = { messages: [new HumanMessage(input)] };
+      newMessages = [new HumanMessage(input)];
+    } else if (
+      input &&
+      typeof input === 'object' &&
+      'messages' in input &&
+      Array.isArray(input.messages)
+    ) {
+      newMessages = input.messages;
     } else {
-      initialState = input as Partial<AgentStateType>;
+      newMessages = [new HumanMessage(JSON.stringify(input))];
     }
 
-    const chunks = await this.compiledGraph.stream(initialState, config);
-    for await (const chunk of chunks) {
+    const initialState: Partial<AgentStateType> = {
+      messages: [...this.chatHistory, ...newMessages],
+    };
+
+    const chunks = [];
+    const chunksStream = await this.compiledGraph.stream(initialState, config);
+    for await (const chunk of chunksStream) {
       yield chunk;
+      chunks.push(chunk);
     }
+  }
+
+  public getHistory(): BaseMessage[] {
+    return this.chatHistory;
+  }
+
+  public setHistory(history: BaseMessage[]): void {
+    this.chatHistory = history;
+  }
+
+  public resetHistory(): void {
+    this.chatHistory = [];
+  }
+
+  public addMessagesToHistory(messages: BaseMessage[]): void {
+    this.chatHistory.push(...messages);
   }
 }
