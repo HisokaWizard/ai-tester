@@ -41,6 +41,10 @@ export default defineConfig({
           __dirname,
           'src/agent-template/agentExampleCodeGenerator.ts'
         ),
+        'agent/agentExampleCodeGeneratorRag': resolve(
+          __dirname,
+          'src/agent-template/agentExampleCodeGeneratorRag.ts'
+        ),
       },
       output: {
         entryFileNames: `[name].js`,

@@ -82,7 +82,7 @@ async function runAgentExample() {
     'Вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу',
   ];
 
-  fs.mkdirSync('./chat_cache/example.tsx', { recursive: true });
+  fs.mkdirSync('./chat_cache', { recursive: true });
 
   let fullContent: string[] = [];
   // 5. Выполнение запросов
@@ -106,46 +106,6 @@ async function runAgentExample() {
   }
 
   fs.writeFileSync('./chat_cache/example1.tsx', fullContent.join('\n'));
-
-  /**
-    let fullResponse = ''; // Для сборки полного ответа
-     for await (const chunkAgent of agent.stream(testQueries)) {
-    // chunk - это промежуточный результат от графа.
-    // Его структура зависит от того, что возвращает compiledGraph.stream
-    // Часто это объект состояния с новыми сообщениями или изменениями в состоянии.
-    // console.log("Chunk received:", JSON.stringify(chunk, null, 2)); // Для отладки структуры chunk
-
-    // --- Обработка chunk ---
-    // Вам нужно извлечь текст из chunk.
-    // Это зависит от структуры, которую возвращает ваш граф.
-    // Пример (может потребоваться адаптация):
-    const chunk = chunkAgent.agent;
-    if (chunk && typeof chunk === 'object' && 'messages' in chunk) {
-      const messages = chunk.messages;
-      if (Array.isArray(messages) && messages.length > 0) {
-        const lastMessage = messages[messages.length - 1];
-        // Проверяем, является ли сообщение от ИИ и содержит ли content
-        if (lastMessage && lastMessage.constructor.name === 'AIMessageChunk') {
-          // AIMessageChunk обычно имеет свойство content, которое может быть строкой или массивом токенов
-          const content = lastMessage.content;
-          if (typeof content === 'string') {
-            // Если content - строка, выводим её
-            process.stdout.write(content); // Выводим без новой строки, как печать на лету
-            fullResponse += content;
-          } else if (Array.isArray(content)) {
-            // Если content - массив (например, токенов), нужно обработать его
-            // Это зависит от конкретной реализации модели/библиотеки
-            // content.forEach(token => process.stdout.write(token));
-          }
-        }
-      }
-    }
-    // --- Конец обработки chunk ---
-
-      console.log('\n\n--- Стриминг завершен ---');
-  console.log('Полный ответ (собранный):', fullResponse);
-  }
-   */
 
   console.log('--- Пример завершен ---');
 }

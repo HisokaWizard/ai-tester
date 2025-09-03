@@ -1,202 +1,165 @@
-// custom-agent.ts
-
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { ToolInterface } from '@langchain/core/tools';
 import {
-  SystemMessagePromptTemplate,
-  HumanMessagePromptTemplate,
   ChatPromptTemplate,
+  MessagesPlaceholder,
+  SystemMessagePromptTemplate,
 } from '@langchain/core/prompts';
 import { Runnable, RunnableConfig } from '@langchain/core/runnables';
-import { MessagesPlaceholder } from '@langchain/core/prompts';
-import { StateGraph, END, START } from '@langchain/langgraph';
-import { Annotation } from '@langchain/langgraph';
-// Предполагаем, что существует или будет создан узел для выполнения инструментов
-// Это может быть, например, часть @langchain/langgraph/prebuilt или ваша собственная реализация
-import { ToolNode } from '@langchain/langgraph/prebuilt'; // Или ваша реализация
-import {
-  AIMessage,
-  BaseMessage,
-  BaseMessageChunk,
-  HumanMessage,
-} from '@langchain/core/messages';
+import { END, START, StateGraph } from '@langchain/langgraph';
+import { ToolNode } from '@langchain/langgraph/prebuilt';
+import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 
 // --- 1. Определение типа состояния агента ---
-// Это позволяет гибко управлять состоянием внутри графа.
-// Можно расширить для конкретных агентов.
-const AgentAnnotation = Annotation.Root({
-  messages: Annotation<BaseMessage[]>({
-    reducer: (x, y) => x.concat(y), // Как комбинировать сообщения
-    default: () => [], // Начальное значение
-  }),
-  // Другие поля состояния могут быть добавлены здесь
-  // Например: next: Annotation<string>, scratchpad: Annotation<string>
-});
+// Используем интерфейс для большей ясности
+export interface AgentState {
+  messages: BaseMessage[];
+}
 
-type AgentStateType = typeof AgentAnnotation.State;
-
-// --- 2. Интерфейс для опций агента ---
+// --- 2. Интерфейс для опций агента (с опциональным графом) ---
 interface AgentOptions {
-  model: BaseLanguageModel; // Модель LLM
-  systemPrompt?: string; // Системный промпт
-  userPromptTemplate?: string; // Шаблон пользовательского промпта (необязательно, если логика сложнее)
-  tools?: ToolInterface[]; // Список доступных инструментов
-  graph?: StateGraph<any, any, any, any, any, any> | any; // Граф исполнения (опционально, если нужен кастомный)
-  // agentType?: 'react' | 'plan-and-execute' | 'custom'; // Тип агента (можно использовать для внутренней логики)
-  // Другие настройки, например, парсер вывода, настройки ретраера и т.д.
+  model: BaseLanguageModel;
+  tools: ToolInterface[];
+  systemPrompt: string;
+  /**
+   * Опциональный, предварительно созданный граф LangGraph.
+   * Если не предоставлен, будет создан стандартный ReAct-граф.
+   */
+  graph?: StateGraph<any>;
 }
 
 // --- 3. Базовый класс CustomAgent ---
 export class CustomAgent {
   protected model: BaseLanguageModel;
-  protected systemPromptTemplate: SystemMessagePromptTemplate;
-  protected userPromptTemplate: HumanMessagePromptTemplate;
   protected tools: ToolInterface[];
-  protected graph: StateGraph<any, any, any, any, any, any> | any;
-  protected compiledGraph: Runnable; // Скомпилированный граф
+  protected compiledGraph: Runnable<AgentState, any>;
 
   private chatHistory: BaseMessage[] = [];
 
   constructor(options: AgentOptions) {
     this.model = options.model;
-    this.tools = options.tools || [];
+    this.tools = options.tools;
+    let graph: StateGraph<any>;
 
-    // Инициализация промптов с умными умолчаниями
-    const systemPromptText =
-      options.systemPrompt || 'You are a helpful AI assistant.';
-    this.systemPromptTemplate =
-      SystemMessagePromptTemplate.fromTemplate(systemPromptText);
-
-    const userPromptText = options.userPromptTemplate || '{input}';
-    this.userPromptTemplate =
-      HumanMessagePromptTemplate.fromTemplate(userPromptText);
-
-    // Инициализация или создание графа
+    // ✨ Проверяем, был ли предоставлен кастомный граф
     if (options.graph) {
-      this.graph = options.graph;
+      console.log('[INFO] Используется предоставленный кастомный граф.');
+      graph = options.graph;
     } else {
-      this.graph = this.createDefaultGraph();
+      // Если нет, создаем стандартный ReAct граф
+      console.log(
+        '[INFO] Кастомный граф не найден, создается стандартный ReAct-граф.'
+      );
+      graph = this.createDefaultGraph(options.systemPrompt);
     }
 
-    // Компиляция графа
-    this.compiledGraph = this.graph.compile();
+    this.compiledGraph = graph.compile();
   }
 
-  // --- 4. Метод для создания стандартного графа (например, ReAct-подобного) ---
-  protected createDefaultGraph(): any {
-    const workflow = new StateGraph(AgentAnnotation)
-      .addNode('agent', this.callModel.bind(this)) // Узел вызова модели
-      .addNode('action', new ToolNode(this.tools)); // Узел выполнения действий
-
-    // Добавляем ребра
-    workflow.addEdge(START, 'agent');
-    workflow.addEdge('action', 'agent'); // После действия снова к агенту
-
-    // Условное ребро: если есть инструмент для вызова, идем к действию, иначе завершаем
-    workflow.addConditionalEdges('agent', this.shouldContinue.bind(this), {
-      // Карта переходов
-      continue: 'action',
-      end: END,
+  // --- 4. Метод для создания стандартного ReAct-графа (используется по умолчанию) ---
+  protected createDefaultGraph(
+    systemPromptText = 'You are a helpful AI assistant.'
+  ): StateGraph<AgentState> {
+    const workflow = new StateGraph<AgentState>({
+      channels: {
+        messages: {
+          value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
+          default: () => [],
+        },
+      },
     });
+
+    // Узлы графа используют методы этого класса.
+    // Это позволяет кастомным графам также вызывать их.
+    workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
+    workflow.addNode('action', new ToolNode(this.tools));
+
+    // Определяем логику переходов для ReAct-цикла
+    workflow.addEdge(START, 'agent' as any);
+    workflow.addConditionalEdges(
+      'agent' as any,
+      this.shouldContinue.bind(this),
+      {
+        continue: 'action' as any,
+        end: END,
+      }
+    );
+    workflow.addEdge('action' as any, 'agent' as any); // Ключевая связь для замыкания цикла
 
     return workflow;
   }
 
   // --- 5. Логика узла "agent" - вызов модели ---
-  protected async callModel(
-    state: typeof AgentAnnotation.State
-  ): Promise<Partial<typeof AgentAnnotation.State>> {
-    // Создаем промпт для модели
-    // Для простоты используем ChatPromptTemplate, но можно реализовать более сложную логику
+  public async callModel(
+    systemPromptText: string,
+    state: AgentState
+  ): Promise<Partial<AgentState>> {
+    console.log('\n--- [DEBUG] Вызов узла "agent" ---');
+
     const prompt = ChatPromptTemplate.fromMessages([
-      this.systemPromptTemplate,
-      new MessagesPlaceholder('messages'), // Здесь будут предыдущие сообщения
+      SystemMessagePromptTemplate.fromTemplate(systemPromptText),
+      new MessagesPlaceholder('messages'),
     ]);
 
-    const chain = prompt.pipe(this.model);
-    const response: BaseMessageChunk = await chain.invoke({
-      messages: state.messages,
+    const modelWithTools = this.model.withConfig({
+      configurable: {
+        tools: this.tools,
+      },
     });
 
-    return { messages: [response] };
+    const chain = prompt.pipe(modelWithTools);
+
+    try {
+      const response = await chain.invoke({
+        messages: state.messages,
+      });
+      console.log('[DEBUG] Ответ модели:', response);
+      return { messages: [response] };
+    } catch (error: any) {
+      console.error('[ERROR] Ошибка в callModel:', error);
+      return {
+        messages: [
+          new AIMessage(
+            `Произошла ошибка при обращении к модели: ${error.message}`
+          ),
+        ],
+      };
+    }
   }
 
-  // --- 6. Логика условного перехода ---
-  protected shouldContinue(state: AgentStateType): 'continue' | 'end' {
+  // --- 6. Логика условного перехода (может использоваться в кастомных графах) ---
+  public shouldContinue(state: AgentState): 'continue' | 'end' {
     const lastMessage = state.messages[state.messages.length - 1];
-    // Простая проверка: если последнее сообщение от ИИ содержит вызов инструмента
-    // В реальности логика будет зависеть от формата ответа модели (например, парсинг JSON)
-    // или использования специальных парсеров из LangChain (например, ToolCallingAgentOutputParser)
+
     if (
       lastMessage instanceof AIMessage &&
       lastMessage.tool_calls &&
       lastMessage.tool_calls.length > 0
     ) {
+      console.log('[DEBUG] Решение: Продолжить (вызвать инструмент)');
       return 'continue';
     }
+
+    console.log('[DEBUG] Решение: Завершить');
     return 'end';
   }
 
   // --- 7. Метод для запуска агента ---
   public async invoke(
-    input: string | Record<string, any>,
+    input: string,
     config?: RunnableConfig
-  ): Promise<any> {
-    let newMessages: BaseMessage[] = [];
+  ): Promise<AgentState> {
+    const userMessage = new HumanMessage(input);
 
-    if (typeof input === 'string') {
-      newMessages = [new HumanMessage(input)];
-    } else if (
-      typeof input === 'object' &&
-      'messages' in input &&
-      Array.isArray(input.messages)
-    ) {
-      newMessages = input.messages;
-    } else {
-      newMessages = [new HumanMessage(JSON.stringify(input))];
-    }
-
-    const initialState: Partial<AgentStateType> = {
-      messages: [...this.chatHistory, ...newMessages],
-    };
-
-    const finalState = await this.compiledGraph.invoke(initialState, config);
+    const finalState = await this.compiledGraph.invoke(
+      {
+        messages: [...this.chatHistory, userMessage],
+      },
+      config
+    );
 
     this.chatHistory = finalState.messages;
-
     return finalState;
-  }
-
-  // --- 8. Метод для асинхронного стриминга ---
-  public async *stream(
-    input: string | Record<string, any> | BaseMessage,
-    config?: RunnableConfig
-  ): AsyncGenerator<any, any, unknown> {
-    let newMessages: BaseMessage[] = [];
-
-    if (typeof input === 'string') {
-      newMessages = [new HumanMessage(input)];
-    } else if (
-      input &&
-      typeof input === 'object' &&
-      'messages' in input &&
-      Array.isArray(input.messages)
-    ) {
-      newMessages = input.messages;
-    } else {
-      newMessages = [new HumanMessage(JSON.stringify(input))];
-    }
-
-    const initialState: Partial<AgentStateType> = {
-      messages: [...this.chatHistory, ...newMessages],
-    };
-
-    const chunks = [];
-    const chunksStream = await this.compiledGraph.stream(initialState, config);
-    for await (const chunk of chunksStream) {
-      yield chunk;
-      chunks.push(chunk);
-    }
   }
 
   public getHistory(): BaseMessage[] {
