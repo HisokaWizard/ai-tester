@@ -37,10 +37,6 @@ export default defineConfig({
         main: resolve(__dirname, 'src/index.ts'),
         'rag/runRagIndexer': resolve(__dirname, 'src/rag/runRagIndexer.ts'),
         'tools/ragChecker': resolve(__dirname, 'src/tools/ragChecker.ts'),
-        'agent/agentExampleCodeGenerator': resolve(
-          __dirname,
-          'src/agent-template/agentExampleCodeGenerator.ts'
-        ),
         'agent/agentExampleCodeGeneratorRag': resolve(
           __dirname,
           'src/agent-template/agentExampleCodeGeneratorRag.ts'
