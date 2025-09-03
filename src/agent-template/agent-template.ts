@@ -101,19 +101,36 @@ export class CustomAgent {
       new MessagesPlaceholder('messages'),
     ]);
 
-    const modelWithTools = this.model.withConfig({
-      configurable: {
-        tools: this.tools,
-      },
-    });
+    const modelWithTools = (this.model as any).bindTools
+      ? (this.model as any).bindTools(this.tools, { tool_choice: 'auto' })
+      : this.model;
+    /** ПОМЕТКА
+    // авто
+    model.bindTools(tools, { tool_choice: 'auto' });
+
+    // запретить инструменты
+    model.bindTools(tools, { tool_choice: 'none' });
+
+    // принудительно вызвать какой-либо инструмент
+    model.bindTools(tools, { tool_choice: 'required' });
+
+    // принудительно вызвать конкретный инструмент
+    model.bindTools(tools, { tool_choice: { type: 'tool', name: 'rag_search' } });
+
+    // (старый формат)
+    model.bindTools(tools, { tool_choice: { type: 'function', function: { name: 'rag_search' } } });
+     */
 
     const chain = prompt.pipe(modelWithTools);
 
     try {
-      const response = await chain.invoke({
+      const response = (await chain.invoke({
         messages: state.messages,
-      });
+      })) as BaseMessage;
       console.log('[DEBUG] Ответ модели:', response);
+      if ((response as any)?.tool_calls?.length) {
+        console.log('[DEBUG] Обнаружены tool_calls:', (response as any).tool_calls);
+      }
       return { messages: [response] };
     } catch (error: any) {
       console.error('[ERROR] Ошибка в callModel:', error);

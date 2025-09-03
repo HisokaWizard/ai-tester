@@ -20,6 +20,7 @@ async function runAgentExample() {
   const model = new ChatOpenAI({
     modelName,
     temperature: 0,
+    maxTokens: 800, // !
     configuration: {
       baseURL: openRouterUrl,
       defaultHeaders: {
