@@ -1,8 +1,6 @@
 import { Document } from 'langchain/document';
-import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
 import * as fs from 'fs';
 import * as path from 'path';
-import fg from 'fast-glob';
 import { XenovaEmbeddings } from './xenovaEmbeddings';
 import * as fsExtra from 'fs-extra';
 
@@ -216,42 +214,47 @@ async function findFiles(
   try {
     const absoluteBaseDir = path.resolve(directoryPath);
     console.log(`🔍 Поиск файлов в (абсолютный путь): ${absoluteBaseDir}`);
-    const searchExtensions = [...extensions];
 
-    // Если в списке расширений нет пустой строки, добавляем её.
-    // Это нужно для поиска файлов БЕЗ расширения, например, `.env`, `Dockerfile`, `LICENSE`.
-    if (!searchExtensions.includes('')) {
-      searchExtensions.push('');
+    // Проверяем, что директория существует
+    if (!fs.existsSync(absoluteBaseDir)) {
+      console.error(`❌ Директория не существует: ${absoluteBaseDir}`);
+      return [];
     }
 
-    // Формируем паттерны включения для ВСЕХ расширений, включая пустое
-    const includePatterns = searchExtensions.map((ext) =>
-      // path.posix.join для совместимости с fast-glob
-      path.posix.join(absoluteBaseDir, '**', `*${ext}`)
-    );
+    // Простой поиск через fs.readdirSync для отладки
+    console.log('🔍 Простой поиск файлов...');
+    const allFiles: string[] = [];
 
-    const enhancedIgnorePatterns = [
-      ...ignoredPatterns,
-      '**/.env', // Явное указание самого файла
-      '**/.env.*', // И файлов вида .env.local, .env.production и т.д.
-    ];
+    function scanDirectory(dir: string, relativePath: string = '') {
+      try {
+        const items = fs.readdirSync(dir);
+        for (const item of items) {
+          const fullPath = path.join(dir, item);
+          const relativeItemPath = path.join(relativePath, item);
+          const stat = fs.statSync(fullPath);
 
-    // Используем fast-glob для поиска
-    // onlyFiles: true - аналог nodir: true
-    // ignore - массив паттернов для игнорирования
-    const files = await fg(includePatterns, {
-      cwd: absoluteBaseDir, // Рабочая директория
-      absolute: true, // Возвращаем абсолютные пути
-      onlyFiles: true, // Только файлы
-      ignore: enhancedIgnorePatterns, // Игнорируемые паттерны
-      dot: true, // Включать скрытые файлы/папки (если нужно)
-    });
+          if (stat.isDirectory()) {
+            // Пропускаем только node_modules и dist
+            if (item !== 'node_modules' && item !== 'dist') {
+              scanDirectory(fullPath, relativeItemPath);
+            }
+          } else if (stat.isFile()) {
+            const ext = path.extname(item).toLowerCase();
+            if (extensions.includes(ext)) {
+              allFiles.push(fullPath);
+              console.log(`✅ Найден файл: ${relativeItemPath}`);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(`⚠️ Ошибка сканирования ${dir}:`, (error as Error).message);
+      }
+    }
 
-    console.log(`📁 Найдено файлов: ${files.length}`);
-    const env = files.find((it) => it === '.env');
-    console.log('env: ', env);
+    scanDirectory(absoluteBaseDir);
 
-    return files;
+    console.log(`📁 Найдено файлов: ${allFiles.length}`);
+    return allFiles;
   } catch (error) {
     console.error(
       `❌ Ошибка поиска файлов в ${directoryPath}:`,
@@ -331,12 +334,48 @@ async function indexDirectoryAndSave(
     );
     const embeddings = new XenovaEmbeddings(embeddingsModelName);
 
-    console.log('🧠 Создание векторной базы данных...');
-    const vectorStore = await HNSWLib.fromDocuments(splitDocs, embeddings);
+    console.log('🧠 Создание эмбеддингов для документов...');
+    const allEmbeddings = await embeddings.embedDocuments(
+      splitDocs.map(doc => doc.pageContent)
+    );
 
+    // 5. Сохраняем в простом формате
     console.log(`💾 Сохранение VDB в ${vectorStorePath}...`);
     await fsExtra.ensureDir(vectorStorePath);
-    await vectorStore.save(vectorStorePath);
+
+    // Сохраняем документы
+    const docstore: Record<string, { pageContent: string; metadata: any }> = {};
+    splitDocs.forEach((doc, i) => {
+      docstore[`doc_${i}`] = {
+        pageContent: doc.pageContent,
+        metadata: doc.metadata
+      };
+    });
+
+    fs.writeFileSync(
+      path.join(vectorStorePath, 'docstore.json'),
+      JSON.stringify(docstore, null, 2)
+    );
+
+    // Сохраняем эмбеддинги
+    fs.writeFileSync(
+      path.join(vectorStorePath, 'embeddings.json'),
+      JSON.stringify(allEmbeddings, null, 2)
+    );
+
+    // Сохраняем метаданные
+    const metadata = {
+      totalDocuments: splitDocs.length,
+      embeddingsModel: embeddingsModelName,
+      chunkSize,
+      chunkOverlap,
+      indexedAt: new Date().toISOString()
+    };
+
+    fs.writeFileSync(
+      path.join(vectorStorePath, 'metadata.json'),
+      JSON.stringify(metadata, null, 2)
+    );
 
     console.log('🎉 Индексация успешно завершена!\n');
   } catch (error) {

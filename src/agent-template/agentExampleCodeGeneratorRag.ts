@@ -8,13 +8,21 @@ import fs from 'fs';
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
+
   const openRouterUrl = 'https://openrouter.ai/api/v1';
-  const modelName = 'openai/gpt-4o-mini'; //'qwen/qwen3-coder';
+  const modelName = 'qwen/qwen3-coder';
   const apiKey = process.env.OPEN_ROUTER_API_KEY;
+
+
+  //!!!!!!!!!
+  //   const gigaChatUrl = 'https://gigachat.devices.sberbank.ru/api/v1';
+  // const modelName = 'GigaChat-2-Max';
+  // const apiKey = process.env.GIGA_CHAT_ACCESS_TOKEN;
 
   const model = new ChatOpenAI({
     modelName,
     temperature: 0,
+    maxTokens: 800,
     configuration: {
       baseURL: openRouterUrl,
       defaultHeaders: {
