@@ -1,0 +1,7 @@
+{
+  "totalDocuments": 46,
+  "embeddingsModel": "Xenova/all-MiniLM-L6-v2",
+  "chunkSize": 1000,
+  "chunkOverlap": 200,
+  "indexedAt": "2025-09-03T17:43:52.868Z"
+}

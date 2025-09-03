@@ -1,3 +1,4 @@
+
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { ToolInterface } from '@langchain/core/tools';
 import {
@@ -101,25 +102,17 @@ export class CustomAgent {
       new MessagesPlaceholder('messages'),
     ]);
 
-    const modelWithTools = (this.model as any).bindTools
-      ? (this.model as any).bindTools(this.tools, { tool_choice: 'auto' })
-      : this.model;
-    /** ПОМЕТКА
-    // авто
-    model.bindTools(tools, { tool_choice: 'auto' });
+    // Универсальный fallback механизм для подключения инструментов
+    let modelWithTools = this.model;
 
-    // запретить инструменты
-    model.bindTools(tools, { tool_choice: 'none' });
+    if (this.tools.length > 0) {
+      console.log(`[DEBUG] Попытка подключения ${this.tools.length} инструментов к модели...`);
 
-    // принудительно вызвать какой-либо инструмент
-    model.bindTools(tools, { tool_choice: 'required' });
-
-    // принудительно вызвать конкретный инструмент
-    model.bindTools(tools, { tool_choice: { type: 'tool', name: 'rag_search' } });
-
-    // (старый формат)
-    model.bindTools(tools, { tool_choice: { type: 'function', function: { name: 'rag_search' } } });
-     */
+      // Пробуем все доступные методы подключения инструментов по порядку
+      modelWithTools = this.tryConnectTools(this.model, this.tools);
+    } else {
+      console.log('[DEBUG] Инструменты не предоставлены, используется базовая модель');
+    }
 
     const chain = prompt.pipe(modelWithTools);
 
@@ -193,5 +186,97 @@ export class CustomAgent {
 
   public addMessagesToHistory(messages: BaseMessage[]): void {
     this.chatHistory.push(...messages);
+  }
+
+  // --- 8. Универсальный fallback механизм для подключения инструментов ---
+
+  /**
+   * Универсальный метод подключения инструментов к любой модели
+   * Пробует все доступные методы по порядку
+   */
+  private tryConnectTools(model: any, tools: any[]): any {
+    console.log('[DEBUG] Универсальное подключение инструментов...');
+
+    // Метод 1: bindTools (современный стандарт)
+    if (typeof model.bindTools === 'function') {
+      try {
+        console.log('[DEBUG] Пробуем bindTools...');
+        const result = model.bindTools(tools, { tool_choice: 'auto' });
+        console.log('[SUCCESS] bindTools успешно подключен');
+        return result;
+      } catch (error) {
+        console.warn('[WARNING] bindTools не удался:', (error as Error).message);
+      }
+    }
+
+    // Метод 2: withFunctions (старый метод)
+    if (typeof model.withFunctions === 'function') {
+      try {
+        console.log('[DEBUG] Пробуем withFunctions...');
+        const functionSchemas = tools.map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          parameters: (tool as any).schema || {
+            type: 'object',
+            properties: {
+              input: { type: 'string', description: 'Входные данные для инструмента' }
+            },
+            required: ['input']
+          }
+        }));
+        const result = model.withFunctions(functionSchemas);
+        console.log('[SUCCESS] withFunctions успешно подключен');
+        return result;
+      } catch (error) {
+        console.warn('[WARNING] withFunctions не удался:', (error as Error).message);
+      }
+    }
+
+    // Метод 3: withStructuredOutput (альтернативный метод)
+    if (typeof model.withStructuredOutput === 'function') {
+      try {
+        console.log('[DEBUG] Пробуем withStructuredOutput...');
+        const toolSchema = {
+          type: "object",
+          properties: {
+            tool_calls: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  arguments: { type: "string" }
+                },
+                required: ["name", "arguments"]
+              }
+            }
+          }
+        };
+        const result = model.withStructuredOutput(toolSchema);
+        console.log('[SUCCESS] withStructuredOutput успешно подключен');
+        return result;
+      } catch (error) {
+        console.warn('[WARNING] withStructuredOutput не удался:', (error as Error).message);
+      }
+    }
+
+    // Метод 4: withTools (если есть)
+    if (typeof model.withTools === 'function') {
+      try {
+        console.log('[DEBUG] Пробуем withTools...');
+        const result = model.withTools(tools);
+        console.log('[SUCCESS] withTools успешно подключен');
+        return result;
+      } catch (error) {
+        console.warn('[WARNING] withTools не удался:', (error as Error).message);
+      }
+    }
+
+    // Fallback: модель без автоматических инструментов
+    console.warn('[WARNING] Модель не поддерживает автоматические инструменты');
+    console.warn('[WARNING] Доступные инструменты:', tools.map(t => t.name).join(', '));
+    console.warn('[WARNING] Инструменты будут вызываться через промпт');
+
+    return model;
   }
 }
