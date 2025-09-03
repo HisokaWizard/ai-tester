@@ -1,14 +1,13 @@
 {
   "name": "ai-tester",
   "version": "1.0.0",
-  "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite",
-    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite build",
-    "rag:indexer": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/rag/runRagIndexer.js",
-    "rag:check": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js",
-    "agent:rag": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGeneratorRag.js"
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 vite",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 vite build",
+    "rag:indexer": "NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/rag/runRagIndexer.js",
+    "rag:check": "NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js",
+    "agent:check": "NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGenerator.js"
   },
   "repository": {
     "type": "git",
@@ -42,7 +41,6 @@
     "@typescript-eslint/eslint-plugin": "8.33.1",
     "@typescript-eslint/parser": "8.33.1",
     "@vitejs/plugin-react": "4.0.4",
-    "cross-env": "^10.0.0",
     "dotenv": "16.5.0",
     "eslint": "9.28.0",
     "eslint-config-prettier": "10.1.5",
