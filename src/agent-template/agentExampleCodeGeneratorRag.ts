@@ -1,5 +1,5 @@
 // main.ts
-import { ChatOpenAI } from '@langchain/openai';
+import { GigaChat } from 'langchain-gigachat';
 
 import { CustomAgent } from './agent-template';
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
@@ -8,28 +8,13 @@ import fs from 'fs';
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
-
-  const openRouterUrl = 'https://openrouter.ai/api/v1';
-  const modelName = 'qwen/qwen3-coder';
-  const apiKey = process.env.OPEN_ROUTER_API_KEY;
-
-
-  //!!!!!!!!!
-  //   const gigaChatUrl = 'https://gigachat.devices.sberbank.ru/api/v1';
-  // const modelName = 'GigaChat-2-Max';
-  // const apiKey = process.env.GIGA_CHAT_ACCESS_TOKEN;
-
-  const model = new ChatOpenAI({
-    modelName,
-    temperature: 0,
-    maxTokens: 800,
-    configuration: {
-      baseURL: openRouterUrl,
-      defaultHeaders: {
-        'Content-Type': 'application/json',
-      },
-      apiKey,
-    },
+  // 1. Настройка модели GigaChat через официальный клиент
+  const model = new GigaChat({
+    model: 'GigaChat-2-Max',
+    // temperature: 0,
+    // accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
+    temperature: 0.1,
+    credentials: process.env.GIGA_CHAT_ACCESS_TOKEN,
   });
 
   const tools = [await createRagRetrieverTool()];
@@ -53,7 +38,7 @@ async function runAgentExample() {
   `;
 
   const agent = new CustomAgent({
-    model: model,
+    model: model as any,
     systemPrompt: systemPrompt,
     tools: tools,
   });
@@ -64,11 +49,7 @@ async function runAgentExample() {
   const testQueries = [
     'Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag',
     'Удали кнопку забыли пароль',
-
     'Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению',
-    // 'Измени кнопку подключения кошельков на конопку которая вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]',
-    // 'Для каждого кошелька из списка реализуй логику работы с кошельком по клику, а также подпись публичным ключем',
-    // 'Вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу',
   ];
 
   fs.mkdirSync('./chat_cache', { recursive: true });
