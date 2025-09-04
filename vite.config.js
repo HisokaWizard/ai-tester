@@ -27,6 +27,9 @@ export default defineConfig({
     'process.env.GIGA_CHAT_ACCESS_TOKEN': JSON.stringify(
       env.GIGA_CHAT_ACCESS_TOKEN
     ),
+    'process.env.COIN_MARKET_CUP_API_KEY': JSON.stringify(
+      env.COIN_MARKET_CUP_API_KEY
+    ),
   },
   build: {
     target: 'node22',
@@ -44,6 +47,10 @@ export default defineConfig({
         'agent/agentExampleCodeGeneratorRag': resolve(
           __dirname,
           'src/agent-template/agentExampleCodeGeneratorRag.ts'
+        ),
+        'agent/agentExampleCodeGeneratorCustomGraph': resolve(
+          __dirname,
+          'src/agent-template/agentExampleCodeGeneratorCustomGraph.ts'
         ),
       },
       output: {
