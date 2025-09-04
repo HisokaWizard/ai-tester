@@ -1,4 +1,8 @@
-import { indexDirectoryAndSave, VECTOR_STORE_PATH } from './ragIndexer';
+import {
+  EMBEDDINGS_MODEL_NAME,
+  indexDirectoryAndSave,
+  VECTOR_STORE_PATH,
+} from './ragIndexer';
 
 const RAG_SOURCE_DIRECTORY = process.env.RAG_SOURCE_DIRECTORY ?? '../src';
 
@@ -6,6 +10,9 @@ const RAG_SOURCE_DIRECTORY = process.env.RAG_SOURCE_DIRECTORY ?? '../src';
   await indexDirectoryAndSave(
     RAG_SOURCE_DIRECTORY,
     ['.ts', '.tsx', '.md', '.js', 'jsx'],
-    VECTOR_STORE_PATH
+    VECTOR_STORE_PATH,
+    EMBEDDINGS_MODEL_NAME,
+    2500,
+    500
   );
 })();

@@ -6,7 +6,7 @@ import fg from 'fast-glob';
 import { XenovaEmbeddings } from './xenovaEmbeddings';
 import * as fsExtra from 'fs-extra';
 
-const EMBEDDINGS_MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
+const EMBEDDINGS_MODEL_NAME = 'Xenova/bge-base-en-v1.5';
 const VECTOR_STORE_PATH = process.env.RAG_WORKING_DIRECTORY ?? './vdb';
 // Папки, которые нужно игнорировать
 const IGNORED_PATTERNS = [

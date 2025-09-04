@@ -45,6 +45,8 @@ export async function createRagRetrieverTool(
       'Используй, когда нужна конкретная информация из документов. Введи запрос пользователя как есть.',
     func: async (input: string) => {
       if (!vectorStore) return 'Ошибка: VDB не доступна.';
+      const THRESHOLD = 0.85;
+      const originalInput = `Оригинальный запрос пользователя: ${input}.`;
       try {
         console.log(`\n🔍 [RAG] Поиск по запросу: "${input}"`);
         const results = await vectorStore.similaritySearchWithScore(
@@ -52,20 +54,24 @@ export async function createRagRetrieverTool(
           DEFAULT_TOP_K
         );
 
-        if (results.length === 0) {
+        const relevantResults = results.filter(
+          ([doc, score]) => score > THRESHOLD
+        );
+
+        if (relevantResults.length === 0) {
           console.log(`📭 [RAG] Ничего не найдено по запросу "${input}".`);
-          return 'Информация не найдена.';
+          return `${originalInput}. Информация не найдена.`;
         }
 
-        console.log(`✅ [RAG] Найдено ${results.length} фрагментов.`);
-        const contextParts = results.map(([doc, score], i) => {
+        console.log(`✅ [RAG] Найдено ${relevantResults.length} фрагментов.`);
+        const contextParts = relevantResults.map(([doc, score], i) => {
           const source = doc.metadata?.source || 'Неизвестно';
           return `--- Фрагмент ${i + 1} (Источник: ${source}) ---\n${doc.pageContent}\n`;
         });
-        return contextParts.join('\n');
+        return `${originalInput}. Дополнение от Rag: ${contextParts.join('\n')}`;
       } catch (error) {
         console.error('[RAG] Ошибка поиска:', (error as Error).message);
-        return `Ошибка поиска: ${(error as Error).message}`;
+        return `${originalInput}. Ошибка поиска: ${(error as Error).message}`;
       }
     },
   });

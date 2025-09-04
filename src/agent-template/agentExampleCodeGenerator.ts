@@ -1,6 +1,7 @@
 // main.ts
 import { ChatOpenAI } from '@langchain/openai';
 import { BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { GigaChat } from 'langchain-gigachat';
 
 // Импортируем наш кастомный класс агента
 import { CustomAgent } from './agent-template'; // Убедитесь, что путь правильный
@@ -29,20 +30,13 @@ async function runAgentExample() {
     },
   });
 
-  const gigaChatUrl = 'https://gigachat.devices.sberbank.ru/api/v1';
   const gigaChatModel = 'GigaChat-2-Max';
-  const gigaChatApiKey = process.env.GIGA_CHAT_ACCESS_TOKEN;
+  const gigaChatApiKey = process.env.GIGA_CHAT_API_KEY;
 
-  const model2 = new ChatOpenAI({
-    modelName: gigaChatModel,
+  const model2 = new GigaChat({
+    model: gigaChatModel,
     temperature: 0,
-    configuration: {
-      baseURL: gigaChatUrl,
-      defaultHeaders: {
-        'Content-Type': 'application/json',
-      },
-      apiKey: gigaChatApiKey,
-    },
+    credentials: gigaChatApiKey,
   });
 
   // 2. Определение инструментов

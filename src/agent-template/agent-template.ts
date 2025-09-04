@@ -101,19 +101,38 @@ export class CustomAgent {
       new MessagesPlaceholder('messages'),
     ]);
 
-    const modelWithTools = this.model.withConfig({
-      configurable: {
-        tools: this.tools,
-      },
-    });
+    // const modelWithTools = this.model.withConfig({
+    //   configurable: {
+    //     tools: this.tools,
+    //   },
+    // });
+    const anyModel = this.model.withRetry() as any;
+    const modelWithTools =
+      'bindTools' in anyModel
+        ? anyModel.bindTools(this.tools, { tool_choice: 'auto' })
+        : anyModel
+            .withConfig({
+              configurable: {
+                tools: this.tools,
+              },
+            })
+            .bind({ tools: this.tools, tool_choice: 'auto' });
 
     const chain = prompt.pipe(modelWithTools);
 
     try {
-      const response = await chain.invoke({
+      const response = (await chain.invoke({
         messages: state.messages,
-      });
+      })) as AIMessage;
+
       console.log('[DEBUG] Ответ модели:', response);
+      if (response?.tool_calls?.length) {
+        console.log(
+          '[DEBUG] Обнаружены tool_calls:',
+          (response as any).tool_calls
+        );
+      }
+
       return { messages: [response] };
     } catch (error: any) {
       console.error('[ERROR] Ошибка в callModel:', error);
@@ -178,3 +197,95 @@ export class CustomAgent {
     this.chatHistory.push(...messages);
   }
 }
+
+`Оригинальный запрос пользователя: Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag.. Дополнение от Rag: --- Фрагмент 1 (Источник: /Users/hisokawizard/Projects/somnia_relay_viewer/src/widgets/QuizGenerator/QuizGenerator.prompt.ts) ---
+    "options": ["Келпи", "Пегас", "Плотва", "Сполох"],
+    "correctAnswer": "Плотва"
+  },
+  {
+    "question": "Какая чародейка была основательницей и первой главой Ложи Чародеек?",
+    "options": ["Йеннифэр из Венгерберга", "Трисс Меригольд", "Фрингилья Виго", "Филиппа Эйльхарт"],
+    "correctAnswer": "Филиппа Эйльхарт"
+  }
+]
+
+Ваш ответ ДОЛЖЕН начинаться с [ и заканчиваться ]. Не включайте в ответ никакой другой текст, комментарии или markdown-форматирование вроде \\\`\\\`\\\`json.
+\`;
+
+
+--- Фрагмент 2 (Источник: /Users/hisokawizard/Projects/somnia_relay_viewer/src/widgets/QuizGenerator/QuizGenerator.prompt.ts) ---
+ * @param topic Тема викторины, например "История Древнего Рима".
+ * @param persona Роль эксперта, например "опытный историк, специализирующийся на Римской Империи".
+ * @param difficultyLevels Массив из 10 чисел (0-100), определяющий сложность каждого вопроса.
+ */
+export const getUniversalQuizPromptRu = (
+  topic: string,
+  persona: string,
+  difficultyLevels: number[]
+) => \`
+Вы — \${persona}. Ваша главная задача — создать качественную викторину из 10 уникальных вопросов на тему: "\${topic}".
+
+Сложность каждого вопроса определяется по шкале от 0 до 100, где 0 — это очень простой, базовый вопрос, а 100 — чрезвычайно сложный вопрос, требующий глубоких, экспертных знаний по теме "\${topic}".
+
+Уровни сложности для 10 вопросов заданы в следующей последовательности: \${difficultyLevels.join(',')}. Вы ДОЛЖНЫ строго придерживаться этой последовательности.
+
+---
+ТРЕБОВАНИЯ К ФОРМАТУ ОТВЕТА:
+Вы ДОЛЖНЫ вернуть ТОЛЬКО один валидный JSON-массив. Массив должен содержать ровно 10 объектов.
+
+--- Фрагмент 3 (Источник: /Users/hisokawizard/Projects/somnia_relay_viewer/UsefulKnowledge.md) ---
+
+### **6. GigaChat (Сбер)**
+
+- **Особенности**: Глубокая поддержка русского языка, интеграция с Kandinsky для генерации изображений.
+- **Доступ**: Бесплатный через Telegram-бота (\`https://t.me/gigachat_bot\`), но API требует регистрации через номер телефона.
+
+---
+
+### Важные замечания:
+
+1. **Бесплатные лимиты**: У многих провайдеров (например, Google Gemini, Groq) есть дневные квоты на токены или запросы .
+2. **Регистрация**: Для получения API-ключей часто требуется верификация через email или номер телефона .
+3. **JS-библиотеки**: Для удобства используйте обёртки вроде \`huggingface.js\` или \`groq-sdk\`.
+
+Для полного списка моделей и условий использования обратитесь к [репозиторию free-llm-api-resources](https://github.com/cheahjs/free-llm-api-resources) .
+
+
+--- Фрагмент 4 (Источник: /Users/hisokawizard/Projects/somnia_relay_viewer/UsefulKnowledge.md) ---
+Вот список LLM с открытым и бесплатным API, а также примеры их подключения на JavaScript:
+
+---
+
+### **1. Mistral AI**
+
+- **Модели**: Mistral 7B, Mixtral 8x7B, Mistral Small/Large.
+- **Особенности**: Высокая скорость обработки, поддержка мультимодальных задач.
+- **Пример запроса на JavaScript**:
+
+\`\`\`javascript
+const fetch = require('node-fetch');
+const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: \`Bearer \${process.env.MISTRAL_API_KEY}\`,
+  },
+  body: JSON.stringify({
+    model: 'mistral-tiny',
+    messages: [
+      { role: 'user', content: 'Кто самый известный французский писатель?' },
+    ],
+  }),
+}).then((response) => response.json());
+\`\`\`
+
+---
+
+### **2. Google Gemini**
+
+- **Модели**: Gemini Pro, Gemini Flash.
+- **Особенности**: Бесплатный доступ до 1 млн токенов/день для некоторых моделей, требует API-ключ.
+- **Пример генерации текста**:
+
+\`\`\`javascript
+`;
