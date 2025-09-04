@@ -10,6 +10,7 @@ import { END, START, StateGraph } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 import { ToolCallingAdapter } from './ToolCallingAdapter';
+import { log } from 'console';
 
 // --- 1. Определение типа состояния агента ---
 // Используем интерфейс для большей ясности
@@ -103,17 +104,29 @@ export class CustomAgent {
     ]);
 
     const modelWithTools = this.ensureToolCalling(this.model as any, this.tools);
+    /** ПОМЕТКА
+    // авто
+    model.bindTools(tools, { tool_choice: 'auto' });
 
+    // запретить инструменты
+    model.bindTools(tools, { tool_choice: 'none' });
+
+    // принудительно вызвать какой-либо инструмент
+    model.bindTools(tools, { tool_choice: 'required' });
+
+    // принудительно вызвать конкретный инструмент
+    model.bindTools(tools, { tool_choice: { type: 'tool', name: 'rag_search' } });
+
+    // (старый формат)
+    model.bindTools(tools, { tool_choice: { type: 'function', function: { name: 'rag_search' } } });
+     */
 
     const chain = prompt.pipe(modelWithTools);
 
     try {
-      let response = (await chain.invoke({
+      const response = (await chain.invoke({
         messages: state.messages,
-      })) as any;
-      if (response && response.invoke) {
-        response = response.invoke as BaseMessage;
-      }
+      })) as BaseMessage;
       console.log('[DEBUG] Ответ модели:', response);
       if ((response as any)?.tool_calls?.length) {
         console.log('[DEBUG] Обнаружены tool_calls:', (response as any).tool_calls);
@@ -130,33 +143,38 @@ export class CustomAgent {
       };
     }
   }
+  //1 GIGACHAT LANG CHAIN - bindTools
+  //2 GIGACHAT LLM - bindTools нет поддержки тулс (обвернули во враппер) + нет базов инструментов + (пром)
+  //3 OpeanAI LLM - bindTools Есть поддержка тулс (обвернули во враппер) + ксть базов инструментов  +  bindTools
 
   // --- 8. Универсальный fallback механизм для подключения инструментов ---
   private ensureToolCalling(model: any, tools: ToolInterface[]) {
     try {
-      // Проверяем встроенную поддержку tool calling (LangChain-style)
-      if (typeof model?.bindTools === 'function' && (model as any).supportsTools === true) {
-        console.log('[INFO] Модель поддерживает bindTools natively.');
+      if (typeof model?.bindTools === 'function') {
         return model.bindTools(tools, { tool_choice: 'auto' });
       }
       if (typeof model?.withTools === 'function') {
-        console.log('[INFO] Модель поддерживает withTools.');
         return model.withTools(tools);
       }
       if (typeof model?.withFunctions === 'function') {
-        console.log('[INFO] Модель поддерживает withFunctions.');
         return model.withFunctions(tools);
       }
+      // Если провайдер поддерживает структурированный вывод — можно собрать контракт
+      // и воспользоваться им. Оставляем на будущее, т.к. интерфейсы различаются.
+      // if (typeof model?.withStructuredOutput === 'function') {
+      //   return model.withStructuredOutput(schemaForToolCalls);
+      // }
 
-      // Если ничего не подошло, используем адаптер (для любой LLM)
-      console.log('[INFO] Native tool calling не поддерживается. Используем ToolCallingAdapter.');
+
+
+      // Универсальный адаптер к любым LLM: эмуляция bindTools через промпт и парсинг JSON
       return new ToolCallingAdapter(model as any).bindTools(tools, { tool_choice: 'auto' });
     } catch (err) {
-      console.error('[ERROR] Ошибка в ensureToolCalling:', err);
-      // Финальный fallback: всегда адаптер
+      console.warn('[WARN] ensureToolCalling fallback with adapter due to error:', err);
       return new ToolCallingAdapter(model as any).bindTools(tools, { tool_choice: 'auto' });
     }
   }
+
   // --- 6. Логика условного перехода (может использоваться в кастомных графах) ---
   public shouldContinue(state: AgentState): 'continue' | 'end' {
     const lastMessage = state.messages[state.messages.length - 1];

@@ -1,210 +1,217 @@
 Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag
-Вот полный код компонента формы авторизации на React с использованием стилей Tailwind CSS (примеры взяты условно):
 
-```javascript
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Input } from '@ya-react/ui'; // условный импорт компонентов
-
-const LoginForm = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold text-center mb-8">Авторизация</h1>
-      <form className="w-full max-w-md p-6 bg-white rounded shadow-lg">
-        <Input
-          type="text"
-          placeholder="Логин"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          className="mb-4"
-        />
-        <Input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mb-4"
-        />
-        <Button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-          onClick={() => alert('Форма отправлена')}
-        >
-          Войти
-        </Button>
-        <Link to="/forgot-password" className="mt-4 text-sm text-blue-500 underline">
-          Забыли пароль?
-        </Link>
-      </form>
-    </div>
-  );
-};
-
-export default LoginForm;
-```
-
-### Описание:
-- Компонент организован через стандартные элементы React (`useState`, `input`, `button`).
-- Стилизация выполнена с помощью классов Tailwind CSS, добавленных прямо в атрибут класса HTML-элементов.
-- Логика работы кнопки отправки формы реализована через обработчик события клика.
-- Для перехода страницы используется стандартный компонент `<Link>` из библиотеки `react-router-dom`.
-
-Таким образом, форма авторизации готова к использованию в вашем приложении.
 Удали кнопку забыли пароль
-## Исправленный код компонента
+Произошла ошибка при обращении к модели: Field "messages" in prompt uses a MessagesPlaceholder, which expects an array of BaseMessages or coerceable values as input.
 
-```jsx
-import React, { useState } from 'react'
-import { Button, Input } from '@ya-react/ui' // условный импорт компонентов
-
-const LoginForm = () => {
-  const [login, setLogin] = useState('')
-  const [password, setPassword] = useState('')
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold text-center mb-8">Авторизация</h1>
-      <form className="w-full max-w-md p-6 bg-white rounded shadow-lg">
-        <Input
-          type="text"
-          placeholder="Логин"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          className="mb-4"
-        />
-        <Input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mb-4"
-        />
-        <Button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-          onClick={() => alert('Форма отправлена')}
-        >
-          Войти
-        </Button>
-      </form>
-    </div>
-  )
-}
-
-export default LoginForm
-```
-
----
-
-## Что изменилось:
-
-Удалена строка, отвечающая за отображение кнопки «Забыли пароль?», и соответствующий фрагмент разметки удалён из компонента. Теперь форма содержит только поля ввода логина и пароля, а также кнопку входа.
-Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению
-### Реализуем форму авторизации с кнопкой подключения через криптокошелёк MetaMask (или другой поддерживаемый кошелек)
-
-#### Вот обновлённый пример компонента:
-
-```jsx
-import React, { useState } from 'react';
-import { Button, Input } from '@ya-react/ui'; // условный импорт компонентов
-import { ethers } from 'ethers'; // библиотека для работы с блокчейнами
-
-// Имитация функции для проверки наличия кошелька и получения адреса
-function checkWallet() {
-  if (!window.ethereum) {
-    alert('Ваш браузер не поддерживает MetaMask');
-    return null;
-  }
-  window.ethereum.on('accountsChanged', async () => {
-    console.log('Кошелек изменился:', window.ethereum.selectedAddress);
-  });
-  try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const address = await signer.getAddress();
-    return address;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-const LoginForm = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [address, setAddress] = useState(null); // адрес кошелька
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    // Проверяем наличие кошелька и получаем адрес
-    const walletAddress = await checkWallet();
-    if (walletAddress) {
-      setAddress(walletAddress);
-      alert(`Вы вошли с кошельком ${walletAddress}`);
-    } else {
-      alert('Не удалось определить ваш кошелек.');
+Received value: [
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "HumanMessage"
+    ],
+    "kwargs": {
+      "content": "Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag",
+      "additional_kwargs": {},
+      "response_metadata": {}
     }
-  };
+  },
+  {
+    "invoke": {
+      "lc": 1,
+      "type": "constructor",
+      "id": [
+        "langchain_core",
+        "messages",
+        "AIMessage"
+      ],
+      "kwargs": {
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "6244c6a3-2b72-493d-9da7-ebd5edc6c998",
+            "type": "tool_call",
+            "function": {
+              "name": "rag_search",
+              "arguments": "{\"query\":\"пример компонента формы авторизации на react с использованием tailwind css\"}"
+            }
+          }
+        ],
+        "invalid_tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    }
+  },
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "HumanMessage"
+    ],
+    "kwargs": {
+      "content": "Удали кнопку забыли пароль",
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  }
+]
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold text-center mb-8">Авторизация</h1>
-      <form className="w-full max-w-md p-6 bg-white rounded shadow-lg" onSubmit={handleSubmit}>
-        <Input
-          type="text"
-          placeholder="Логин"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          className="mb-4"
-        />
-        <Input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mb-4"
-        />
-        <Button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mr-4"
-        >
-          Войти
-        </Button>
-        <Button
-          type="button"
-          className="bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
-          onClick={() => window.ethereum.request({ method: 'eth_requestAccounts' })}
-        >
-          Подключиться через кошелек
-        </Button>
-      </form>
-    </div>
-  );
-};
+Additional message: Unable to coerce message from array: only human, AI, system, developer, or tool message coercion is currently supported.
 
-export default LoginForm;
-```
+Received: {
+  "invoke": {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "AIMessage"
+    ],
+    "kwargs": {
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "6244c6a3-2b72-493d-9da7-ebd5edc6c998",
+          "type": "tool_call",
+          "function": {
+            "name": "rag_search",
+            "arguments": "{\"query\":\"пример компонента формы авторизации на react с использованием tailwind css\"}"
+          }
+        }
+      ],
+      "invalid_tool_calls": [],
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  }
+}
 
----
+Troubleshooting URL: https://js.langchain.com/docs/troubleshooting/errors/MESSAGE_COERCION_FAILURE/
 
-### Как работает этот код:
+Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению
+Произошла ошибка при обращении к модели: Field "messages" in prompt uses a MessagesPlaceholder, which expects an array of BaseMessages or coerceable values as input.
 
-1. **Подключение кошелька:**  
-   Кнопка «Подключиться через кошелек» вызывает метод `window.ethereum.request({ method: 'eth_requestAccounts' })`, который открывает диалоговое окно MetaMask или другого кошелька, запрашивая разрешение на подключение.
+Received value: [
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "HumanMessage"
+    ],
+    "kwargs": {
+      "content": "Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag",
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  },
+  {
+    "invoke": {
+      "lc": 1,
+      "type": "constructor",
+      "id": [
+        "langchain_core",
+        "messages",
+        "AIMessage"
+      ],
+      "kwargs": {
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "6244c6a3-2b72-493d-9da7-ebd5edc6c998",
+            "type": "tool_call",
+            "function": {
+              "name": "rag_search",
+              "arguments": "{\"query\":\"пример компонента формы авторизации на react с использованием tailwind css\"}"
+            }
+          }
+        ],
+        "invalid_tool_calls": [],
+        "additional_kwargs": {},
+        "response_metadata": {}
+      }
+    }
+  },
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "HumanMessage"
+    ],
+    "kwargs": {
+      "content": "Удали кнопку забыли пароль",
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  },
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "AIMessage"
+    ],
+    "kwargs": {
+      "content": "Произошла ошибка при обращении к модели: Field \"messages\" in prompt uses a MessagesPlaceholder, which expects an array of BaseMessages or coerceable values as input.\n\nReceived value: [\n  {\n    \"lc\": 1,\n    \"type\": \"constructor\",\n    \"id\": [\n      \"langchain_core\",\n      \"messages\",\n      \"HumanMessage\"\n    ],\n    \"kwargs\": {\n      \"content\": \"Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag\",\n      \"additional_kwargs\": {},\n      \"response_metadata\": {}\n    }\n  },\n  {\n    \"invoke\": {\n      \"lc\": 1,\n      \"type\": \"constructor\",\n      \"id\": [\n        \"langchain_core\",\n        \"messages\",\n        \"AIMessage\"\n      ],\n      \"kwargs\": {\n        \"content\": \"\",\n        \"tool_calls\": [\n          {\n            \"id\": \"6244c6a3-2b72-493d-9da7-ebd5edc6c998\",\n            \"type\": \"tool_call\",\n            \"function\": {\n              \"name\": \"rag_search\",\n              \"arguments\": \"{\\\"query\\\":\\\"пример компонента формы авторизации на react с использованием tailwind css\\\"}\"\n            }\n          }\n        ],\n        \"invalid_tool_calls\": [],\n        \"additional_kwargs\": {},\n        \"response_metadata\": {}\n      }\n    }\n  },\n  {\n    \"lc\": 1,\n    \"type\": \"constructor\",\n    \"id\": [\n      \"langchain_core\",\n      \"messages\",\n      \"HumanMessage\"\n    ],\n    \"kwargs\": {\n      \"content\": \"Удали кнопку забыли пароль\",\n      \"additional_kwargs\": {},\n      \"response_metadata\": {}\n    }\n  }\n]\n\nAdditional message: Unable to coerce message from array: only human, AI, system, developer, or tool message coercion is currently supported.\n\nReceived: {\n  \"invoke\": {\n    \"lc\": 1,\n    \"type\": \"constructor\",\n    \"id\": [\n      \"langchain_core\",\n      \"messages\",\n      \"AIMessage\"\n    ],\n    \"kwargs\": {\n      \"content\": \"\",\n      \"tool_calls\": [\n        {\n          \"id\": \"6244c6a3-2b72-493d-9da7-ebd5edc6c998\",\n          \"type\": \"tool_call\",\n          \"function\": {\n            \"name\": \"rag_search\",\n            \"arguments\": \"{\\\"query\\\":\\\"пример компонента формы авторизации на react с использованием tailwind css\\\"}\"\n          }\n        }\n      ],\n      \"invalid_tool_calls\": [],\n      \"additional_kwargs\": {},\n      \"response_metadata\": {}\n    }\n  }\n}\n\nTroubleshooting URL: https://js.langchain.com/docs/troubleshooting/errors/MESSAGE_COERCION_FAILURE/\n",
+      "tool_calls": [],
+      "invalid_tool_calls": [],
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  },
+  {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "HumanMessage"
+    ],
+    "kwargs": {
+      "content": "Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению",
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  }
+]
 
-2. **Проверка наличия кошелька:**  
-   Функция `checkWallet()` проверяет наличие кошелька и получает адрес текущего аккаунта, если доступ разрешён.
+Additional message: Unable to coerce message from array: only human, AI, system, developer, or tool message coercion is currently supported.
 
-3. **Отправка формы:**  
-   Форма авторизации передаёт данные логина и пароля, после чего проверяется наличие кошелька и выводится сообщение с адресом кошелька.
+Received: {
+  "invoke": {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "AIMessage"
+    ],
+    "kwargs": {
+      "content": "",
+      "tool_calls": [
+        {
+          "id": "6244c6a3-2b72-493d-9da7-ebd5edc6c998",
+          "type": "tool_call",
+          "function": {
+            "name": "rag_search",
+            "arguments": "{\"query\":\"пример компонента формы авторизации на react с использованием tailwind css\"}"
+          }
+        }
+      ],
+      "invalid_tool_calls": [],
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  }
+}
 
----
-
-### Примечания:
-
-- Убедитесь, что вы установили библиотеку `@ethersproject/providers` и настроили её корректно.
-- Код предназначен для работы с браузером, поддерживающим Web3 API (например, MetaMask).
-- Для полноценной интеграции потребуется дополнительная логика обработки событий и взаимодействие с сервером.
+Troubleshooting URL: https://js.langchain.com/docs/troubleshooting/errors/MESSAGE_COERCION_FAILURE/

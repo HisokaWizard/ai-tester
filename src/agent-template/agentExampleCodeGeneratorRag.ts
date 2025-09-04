@@ -1,6 +1,6 @@
 // main.ts
 import { GenericLLMWrapper } from './modelWrapper';
-
+import { ChatOpenAI } from '@langchain/openai';
 import { CustomAgent } from './agent-template';
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
 import fs from 'fs';
@@ -19,10 +19,34 @@ import { getGigaChatAccessToken } from '@/oauth';
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
+  const openRouterUrl = 'https://openrouter.ai/api/v1';
+  const modelName = 'qwen/qwen3-coder';
+  const apiKey = process.env.OPEN_ROUTER_API_KEY;
+
+
+  //!!!!!!!!!
+  //   const gigaChatUrl = 'https://gigachat.devices.sberbank.ru/api/v1';
+  // const modelName = 'GigaChat-2-Max';
+  // const apiKey = process.env.GIGA_CHAT_ACCESS_TOKEN;
+
+  //? OpenRouter
+  // const model = new ChatOpenAI({
+  //   modelName,
+  //   temperature: 0,
+  //   maxTokens: 800,
+  //   configuration: {
+  //     baseURL: openRouterUrl,
+  //     defaultHeaders: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     apiKey,
+  //   },
+  // });
+
   //? GigaChat langchain
   // const model = new GigaChat({
   //   model: 'GigaChat',
-  //   accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
+  //   // accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
   //   temperature: 0.1,
   //   credentials: process.env.GIGA_CHAT_API_KEY,
   // });
