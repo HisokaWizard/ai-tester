@@ -1,21 +1,42 @@
 // main.ts
-import { GigaChat } from 'langchain-gigachat';
+import { GenericLLMWrapper } from './modelWrapper';
 
 import { CustomAgent } from './agent-template';
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
 import fs from 'fs';
+import { GigaChat } from 'langchain-gigachat';
+import { getGigaChatAccessToken } from '@/oauth';
+
+//? ПОЛУЧИТЬ accessToken из https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+// const accessToken = await getGigaChatAccessToken(
+//   process.env.GIGACHAT_CLIENT_ID!,
+//   process.env.GIGACHAT_CLIENT_SECRET!,
+//   'GIGACHAT_API_PERS'
+// );
+// console.log('accessToken', accessToken);
+
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
-  // 1. Настройка модели GigaChat через официальный клиент
-  const model = new GigaChat({
-    model: 'GigaChat-2-Max',
-    // temperature: 0,
-    // accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
-    temperature: 0.1,
-    credentials: process.env.GIGA_CHAT_ACCESS_TOKEN,
+  //? GigaChat langchain
+  // const model = new GigaChat({
+  //   model: 'GigaChat',
+  //   accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
+  //   temperature: 0.1,
+  //   credentials: process.env.GIGA_CHAT_API_KEY,
+  // });
+
+  //? БАЗОВАЯ МОДЕЛЬ
+  const model = new GenericLLMWrapper({
+    // endpoint: 'https://gigachat.devices.sberbank.ru/api/v1', //?
+    endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions', //!
+    // apiKey: process.env.GIGA_CHAT_API_KEY!,
+    apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
+    modelName: 'GigaChat',
+    supportsTools: false
   });
+
 
   const tools = [await createRagRetrieverTool()];
 

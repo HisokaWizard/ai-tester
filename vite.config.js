@@ -24,6 +24,12 @@ export default defineConfig({
     ),
     'process.env.OPEN_AI_API_KEY': JSON.stringify(env.OPEN_AI_API_KEY),
     'process.env.OPEN_ROUTER_API_KEY': JSON.stringify(env.OPEN_ROUTER_API_KEY),
+    'process.env.GIGACHAT_CLIENT_ID': JSON.stringify(
+      env.GIGACHAT_CLIENT_ID
+    ),
+    'process.env.GIGACHAT_CLIENT_SECRET': JSON.stringify(
+      env.GIGACHAT_CLIENT_SECRET
+    ),
     'process.env.GIGA_CHAT_ACCESS_TOKEN': JSON.stringify(
       env.GIGA_CHAT_ACCESS_TOKEN
     ),
