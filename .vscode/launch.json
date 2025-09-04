@@ -48,6 +48,22 @@
       "protocol": "inspector",
       "envFile": "${workspaceFolder}/.env",
       "internalConsoleOptions": "openOnSessionStart",
+    },
+    {
+      "name": "Debug Agent Script 3",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx",
+        "--experimental-network-inspection" // Если требуется
+      ],
+      "args": [
+        "${workspaceFolder}/src/agent-template/agentExampleCodeGeneratorCustomGraph.ts"
+      ],
+      "protocol": "inspector",
+      "envFile": "${workspaceFolder}/.env",
+      "internalConsoleOptions": "openOnSessionStart",
     }
   ]
 }
