@@ -4,24 +4,45 @@ import { ChatOpenAI } from '@langchain/openai';
 import { CustomAgent } from './agent-template';
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
 import fs from 'fs';
+import { GigaChat } from 'langchain-gigachat';
+import { GenericLLMWrapper } from './ModelWrapper';
+
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
-  const openRouterUrl = 'https://openrouter.ai/api/v1';
-  const modelName = 'qwen/qwen3-coder';
-  const apiKey = process.env.OPEN_ROUTER_API_KEY;
+  //? OpenRouter
+  // const openRouterUrl = 'https://openrouter.ai/api/v1';
+  // const modelName = 'qwen/qwen3-coder';
+  // const apiKey = process.env.OPEN_ROUTER_API_KEY;
 
-  const model = new ChatOpenAI({
-    modelName,
-    temperature: 0,
-    configuration: {
-      baseURL: openRouterUrl,
-      defaultHeaders: {
-        'Content-Type': 'application/json',
-      },
-      apiKey,
-    },
+  // const model = new ChatOpenAI({
+  //   modelName,
+  //   temperature: 0,
+  //   configuration: {
+  //     baseURL: openRouterUrl,
+  //     defaultHeaders: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     apiKey,
+  //   },
+  // });
+
+  //? GigaChat langchain
+  // const model = new GigaChat({
+  //   model: 'GigaChat-Plus',
+  //   temperature: 0.1,
+  //   credentials: process.env.GIGA_CHAT_API_KEY,
+  // });
+
+  //? Base model Gigachat
+  const model = new GenericLLMWrapper({
+    // endpoint: 'https://gigachat.devices.sberbank.ru/api/v1', //?
+    endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions', //!
+    // apiKey: process.env.GIGA_CHAT_API_KEY!,
+    apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
+    modelName: 'GigaChat',
+    supportsTools: false
   });
 
   const tools = [await createRagRetrieverTool()];
