@@ -1,13 +1,8 @@
 // main.ts
 import { ChatOpenAI } from '@langchain/openai';
 
-import {
-  AgentState,
-  callModel,
-  CustomAgent,
-  shouldContinue,
-} from './agent-template';
-import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
+import { AgentState, callModel, CustomAgent } from './agent-template';
+import { ragRetrieverFunc } from '../tools/ragRetrieverTool';
 import fs from 'fs';
 import { END, START, StateGraph } from '@langchain/langgraph';
 import { AIMessage, BaseMessage } from '@langchain/core/messages';
@@ -15,6 +10,7 @@ import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { ToolInterface } from '@langchain/core/tools';
 import { getBitcoinPrice } from '@/tools/getBitcoinPrice';
+import { VECTOR_STORE_PATH } from '@/rag';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -35,12 +31,12 @@ async function runAgentExample() {
     },
   });
 
-  const tools = [await createRagRetrieverTool()];
+  const tools: ToolInterface[] = [];
 
   const systemPrompt = `
     Вы профессиональный разработчик ПО, по профилю frontend + ai-agent.
     Вы созданы для того, чтобы писать лучший код в стеке frontend(react, typescript, rtkquery, ect.)
-    Ваша задача выполнять все запросы пользователя и при необходимости обращаться к инструментам {tools}
+    Ваша задача выполнять все запросы пользователя и при необходимости обращаться к инструментам
   `;
 
   const customGraph = (
@@ -59,23 +55,24 @@ async function runAgentExample() {
 
     // Узлы графа используют методы этого класса.
     // Это позволяет кастомным графам также вызывать их.
-    workflow.addNode('agent', (state: AgentState) =>
-      callModel(model, tools, systemPromptText, state)
-    );
+    workflow.addNode('agent', (state: AgentState) => {
+      return callModel(model, tools, systemPromptText, state);
+    });
     workflow.addNode('bitcoin', async (state: AgentState) => {
       const result = await getBitcoinPrice(state as AgentState);
       return { messages: [new AIMessage(result)] };
     });
-    workflow.addNode('action', new ToolNode(tools));
+    workflow.addNode('rag', async (state: AgentState) => {
+      const func = await ragRetrieverFunc(VECTOR_STORE_PATH);
+      const ragAnswer = await func(state);
+      return { messages: [new AIMessage(ragAnswer)] };
+    });
 
     // Определяем логику переходов для ReAct-цикла
     workflow.addEdge(START, 'bitcoin' as any);
-    workflow.addEdge('bitcoin' as any, 'agent' as any);
-    workflow.addConditionalEdges('agent' as any, shouldContinue, {
-      continue: 'action' as any,
-      end: END,
-    });
-    workflow.addEdge('action' as any, 'bitcoin' as any); // Ключевая связь для замыкания цикла
+    workflow.addEdge('bitcoin' as any, 'rag' as any);
+    workflow.addEdge('rag' as any, 'agent' as any);
+    workflow.addEdge('agent' as any, END);
 
     return workflow;
   };
