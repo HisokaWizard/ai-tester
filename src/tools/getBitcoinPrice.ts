@@ -1,4 +1,6 @@
+import { AgentState } from '../agent-template/agent-template';
 import axios from 'axios';
+import { NodeCallback } from './types';
 
 interface CmcQuote {
   price: number;
@@ -23,8 +25,9 @@ interface CmcResponse {
 const getFromCoinMarketCupUrl = (token: string = 'BTC') =>
   `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${token}&convert=USD`;
 
-export const getBitcoinPrice = async (state: any) => {
-  const originalInput = `Оригинальный запрос пользователя: ${state.messages[state.messages.length - 1].content}`;
+export const getBitcoinPrice: NodeCallback = async (state: AgentState) => {
+  const input: string = state.messages[state.messages.length - 1]
+    .content as string;
   const headers = {
     'X-CMC_PRO_API_KEY': process.env.COIN_MARKET_CUP_API_KEY,
     Accept: 'application/json',
@@ -39,7 +42,7 @@ export const getBitcoinPrice = async (state: any) => {
     // Проверяем успешность запроса на уровне HTTP
     if (response.status !== 200) {
       console.error(`Ошибка HTTP: ${response.status}`);
-      return originalInput;
+      return input;
     }
 
     const data = response.data;
@@ -47,7 +50,7 @@ export const getBitcoinPrice = async (state: any) => {
     // Проверяем статус ответа от CoinMarketCap
     if (data.status.error_code !== 0) {
       console.error(`Ошибка CoinMarketCap API: ${data.status.error_message}`);
-      return originalInput;
+      return input;
     }
 
     // Извлекаем цену
@@ -55,14 +58,14 @@ export const getBitcoinPrice = async (state: any) => {
     const btcData = data.data['BTC'];
     if (!btcData) {
       console.error('Данные для BTC не найдены в ответе.');
-      return originalInput;
+      return input;
     }
 
     const price = btcData.quote.USD.price;
     console.log(`Текущая цена Bitcoin (BTC): $${price.toFixed(2)}`);
-    return `${originalInput}, Цена биткоина: ${price}`;
+    return `${input}, Цена биткоина: ${price} в подарок!`;
   } catch (error: any) {
     console.log(error);
-    return `${originalInput}, Ошибка: ${error}`;
+    return `${input}, Ошибка: ${error}`;
   }
 };
