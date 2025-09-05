@@ -9,6 +9,7 @@
     "rag:indexer": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/rag/runRagIndexer.js",
     "rag:check": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js",
     "agent:check": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGeneratorRag.js",
+    "agent:check2": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGeneratorCustomGraph.js",
     "gigachat:token": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/utils/getGigaChatToken.js"
   },
   "repository": {

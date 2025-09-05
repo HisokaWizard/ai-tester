@@ -72,7 +72,10 @@ export class CustomAgent {
 
     // Узлы графа используют методы этого класса.
     // Это позволяет кастомным графам также вызывать их.
-    workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
+    // workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
+    workflow.addNode('agent', (state) =>
+      callModel(this.model, this.tools, systemPromptText, state)
+    );
     workflow.addNode('action', new ToolNode(this.tools));
 
     // Определяем логику переходов для ReAct-цикла
@@ -90,47 +93,6 @@ export class CustomAgent {
     return workflow;
   }
 
-  // --- 5. Логика узла "agent" - вызов модели ---
-  public async callModel(
-    systemPromptText: string,
-    state: AgentState
-  ): Promise<Partial<AgentState>> {
-    console.log('\n--- [DEBUG] Вызов узла "agent" ---');
-
-    const prompt = ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(systemPromptText),
-      new MessagesPlaceholder('messages'),
-    ]);
-
-    const modelWithTools = ensureToolCalling(this.model as any, this.tools);
-
-    const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
-
-    try {
-      const response = (await chain.invoke({
-        messages: state.messages,
-      })) as AIMessage;
-
-      console.log('[DEBUG] Ответ модели:', response);
-      if (response?.tool_calls?.length) {
-        console.log(
-          '[DEBUG] Обнаружены tool_calls:',
-          (response as any).tool_calls
-        );
-      }
-
-      return { messages: [response] };
-    } catch (error: any) {
-      console.error('[ERROR] Ошибка в callModel:', error);
-      return {
-        messages: [
-          new AIMessage(
-            `Произошла ошибка при обращении к модели: ${error.message}`
-          ),
-        ],
-      };
-    }
-  }
 
   // --- 6. Логика условного перехода (может использоваться в кастомных графах) ---
   public shouldContinue(state: AgentState): 'continue' | 'end' {
@@ -291,21 +253,3 @@ export const callModel = async (
     };
   }
 };
-
-export const shouldContinue = (state: AgentState): 'continue' | 'end' => {
-  const lastMessage = state.messages[state.messages.length - 1];
-
-  if (
-    lastMessage instanceof AIMessage &&
-    lastMessage.tool_calls &&
-    lastMessage.tool_calls.length > 0
-  ) {
-    console.log('[DEBUG] Решение: Продолжить (вызвать инструмент)');
-    return 'continue';
-  }
-
-  console.log('[DEBUG] Решение: Завершить');
-  return 'end';
-};
-
-
