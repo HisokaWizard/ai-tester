@@ -30,7 +30,7 @@ async function runAgentExample() {
 
   //? GigaChat langchain
   // const model = new GigaChat({
-  //   model: 'GigaChat-Plus',
+  //   model: 'GigaChat-Pro',
   //   temperature: 0.1,
   //   credentials: process.env.GIGA_CHAT_API_KEY,
   // });
@@ -41,7 +41,7 @@ async function runAgentExample() {
     endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions', //!
     // apiKey: process.env.GIGA_CHAT_API_KEY!,
     apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
-    modelName: 'GigaChat',
+    modelName: 'GigaChat-Pro',
     supportsTools: false
   });
 
