@@ -30,6 +30,10 @@ export default defineConfig({
     'process.env.COIN_MARKET_CUP_API_KEY': JSON.stringify(
       env.COIN_MARKET_CUP_API_KEY
     ),
+    'process.env.GIGACHAT_CLIENT_ID': JSON.stringify(env.GIGACHAT_CLIENT_ID),
+    'process.env.GIGACHAT_CLIENT_SECRET': JSON.stringify(
+      env.GIGACHAT_CLIENT_SECRET
+    ),
   },
   build: {
     target: 'node22',
@@ -40,6 +44,10 @@ export default defineConfig({
         main: resolve(__dirname, 'src/index.ts'),
         'rag/runRagIndexer': resolve(__dirname, 'src/rag/runRagIndexer.ts'),
         'tools/ragChecker': resolve(__dirname, 'src/tools/ragChecker.ts'),
+        'utils/getGigaChatToken': resolve(
+          __dirname,
+          'src/utils/getGigaChatToken.ts'
+        ),
         'agent/agentExampleCodeGenerator': resolve(
           __dirname,
           'src/agent-template/agentExampleCodeGenerator.ts'
@@ -61,18 +69,21 @@ export default defineConfig({
         // Все встроенные модули Node.js, которые вы используете
         'fs',
         'path',
+        'events',
         'node:fs',
         'node:path',
         // Ваши сторонние зависимости
         /^langchain(\/.*)?$/,
         /^@langchain\/.*/,
         /^@xenova\/.*/,
+        /^gigachat(\/.*)?$/,
         'hnswlib',
         'fs-extra',
         'fast-glob',
         'glob',
         'zod',
         'dotenv',
+        'axios',
       ],
     },
   },
