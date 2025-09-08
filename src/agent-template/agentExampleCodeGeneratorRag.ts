@@ -6,38 +6,22 @@ import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
 import fs from 'fs';
 import { GigaChat } from 'langchain-gigachat';
 import { GenericLLMWrapper } from './ModelWrapper';
-
+import { BaseLanguageModel } from '@langchain/core/language_models/base';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
-
-  //? OpenRouter
-  // const openRouterUrl = 'https://openrouter.ai/api/v1';
-  // const modelName = 'qwen/qwen3-coder';
-  // const apiKey = process.env.OPEN_ROUTER_API_KEY;
-
-  // const model = new ChatOpenAI({
-  //   modelName,
-  //   temperature: 0,
-  //   configuration: {
-  //     baseURL: openRouterUrl,
-  //     defaultHeaders: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     apiKey,
-  //   },
-  // });
 
   //? GigaChat langchain
   const model = new GigaChat({
     model: 'GigaChat-Pro',
     temperature: 0.1,
     credentials: process.env.GIGA_CHAT_API_KEY,
+    accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
   });
 
   //? Base model Gigachat
   // const model = new GenericLLMWrapper({
-  //   endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions', 
+  //   endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
   //   apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
   //   modelName: 'GigaChat-Pro',
   //   supportsTools: false //! ПРОПС КОТОРЫЙ НУЖНО ЗНАТЬ ЗАРАНЕЕ ПРИ ВЫБОРЕ МОДЕЛИ
@@ -59,7 +43,7 @@ async function runAgentExample() {
   `;
 
   const agent = new CustomAgent({
-    model: model,
+    model: model as BaseLanguageModel,
     systemPrompt: systemPrompt,
     tools: tools,
   });
@@ -72,9 +56,9 @@ async function runAgentExample() {
     'Удали кнопку забыли пароль',
 
     'Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению',
-    // 'Измени кнопку подключения кошельков на конопку которая вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]',
-    // 'Для каждого кошелька из списка реализуй логику работы с кошельком по клику, а также подпись публичным ключем',
-    // 'Вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу',
+    'Измени кнопку подключения кошельков на конопку которая вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]',
+    'Для каждого кошелька из списка реализуй логику работы с кошельком по клику, а также подпись публичным ключем',
+    'Вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу',
   ];
 
   fs.mkdirSync('./chat_cache', { recursive: true });

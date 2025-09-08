@@ -31,6 +31,9 @@
       ],
       "protocol": "inspector",
       "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      },
       "internalConsoleOptions": "openOnSessionStart",
     },
     {

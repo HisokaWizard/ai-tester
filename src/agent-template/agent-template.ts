@@ -93,7 +93,6 @@ export class CustomAgent {
     return workflow;
   }
 
-
   // --- 6. Логика условного перехода (может использоваться в кастомных графах) ---
   public shouldContinue(state: AgentState): 'continue' | 'end' {
     const lastMessage = state.messages[state.messages.length - 1];
@@ -172,7 +171,10 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
       console.log('[INFO] bindTools применён.');
       return wrapIfNeeded(m);
     } catch (e: any) {
-      console.warn('[WARN] bindTools не сработал, пробую другие варианты:', e?.message ?? e);
+      console.warn(
+        '[WARN] bindTools не сработал, пробую другие варианты:',
+        e?.message ?? e
+      );
     }
   }
 
@@ -192,21 +194,31 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
       console.log('[INFO] withFunctions применён.');
       return wrapIfNeeded(m);
     } catch (e: any) {
-      console.warn('[WARN] withFunctions не сработал, продолжаю:', e?.message ?? e);
+      console.warn(
+        '[WARN] withFunctions не сработал, продолжаю:',
+        e?.message ?? e
+      );
     }
   }
 
-  console.log('[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.');
-  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, { tool_choice: 'auto' });
+  if (typeof model?.bind === 'function') {
+    try {
+      const m = model.bind({ tools, tool_choice: 'auto' });
+      console.log('[INFO] bind применён.');
+      return wrapIfNeeded(m);
+    } catch (e: any) {
+      console.warn('[WARN] bind не сработал, продолжаю:', e?.message ?? e);
+    }
+  }
+
+  console.log(
+    '[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.'
+  );
+  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, {
+    tool_choice: 'auto',
+  });
   return wrapIfNeeded(adapted);
-
-  // console.log('[INFO] Не удалось привязать инструменты: возвращаю модель как есть.');
-
-  // if (typeof model?.bind === 'function') {
-  //   console.log('[INFO] Фолбэк: bind({...tools}).');
-  //   return model.bind({ tools, tool_choice: 'auto' });
-  // }
-}
+};
 
 export const callModel = async (
   model: BaseLanguageModel,
@@ -232,7 +244,9 @@ export const callModel = async (
 
     console.log('[DEBUG] Ответ модели:', response);
     if (!response?.tool_calls || response.tool_calls.length === 0) {
-      console.log('[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.');
+      console.log(
+        '[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.'
+      );
     }
     if (response?.tool_calls?.length) {
       console.log(

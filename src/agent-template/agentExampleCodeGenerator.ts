@@ -8,6 +8,7 @@ import { CustomAgent } from './agent-template'; // Убедитесь, что п
 // Импортируем наш RAG-инструмент
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool'; // Убедитесь, что путь правильный
 import fs from 'fs';
+import { BaseLanguageModel } from '@langchain/core/language_models/base';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -32,11 +33,13 @@ async function runAgentExample() {
 
   const gigaChatModel = 'GigaChat-2-Max';
   const gigaChatApiKey = process.env.GIGA_CHAT_API_KEY;
+  const gigaChatAccessToken = process.env.GIGA_CHAT_ACCESS_TOKEN;
 
   const model2 = new GigaChat({
     model: gigaChatModel,
     temperature: 0,
     credentials: gigaChatApiKey,
+    accessToken: gigaChatAccessToken,
   });
 
   // 2. Определение инструментов
@@ -49,18 +52,12 @@ async function runAgentExample() {
     предостваленный Rag используя соответствующий tools.
   `;
 
-  // userPromptTemplate в базовом классе используется в упрощенном виде,
-  // основная логика промпта для агента задается в методе callModel через ChatPromptTemplate.
-  // Поэтому здесь мы можем оставить его пустым или стандартным.
-
   // 4. Создание экземпляра агента
   // Мы используем дефолтный граф, который создается внутри конструктора CustomAgent
   const agent = new CustomAgent({
-    model: model,
+    model: model2 as BaseLanguageModel,
     systemPrompt: systemPrompt,
-    // userPromptTemplate: "{input}", // Можно не указывать, используется умолчание
     tools: tools,
-    // graph: undefined, // Будет создан дефолтный граф
   });
 
   console.log('Агент инициализирован.\n');

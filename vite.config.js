@@ -30,9 +30,7 @@ export default defineConfig({
     'process.env.COIN_MARKET_CUP_API_KEY': JSON.stringify(
       env.COIN_MARKET_CUP_API_KEY
     ),
-    'process.env.GIGACHAT_CLIENT_ID': JSON.stringify(
-      env.GIGACHAT_CLIENT_ID
-    ),
+    'process.env.GIGACHAT_CLIENT_ID': JSON.stringify(env.GIGACHAT_CLIENT_ID),
     'process.env.GIGACHAT_CLIENT_SECRET': JSON.stringify(
       env.GIGACHAT_CLIENT_SECRET
     ),
@@ -46,7 +44,10 @@ export default defineConfig({
         main: resolve(__dirname, 'src/index.ts'),
         'rag/runRagIndexer': resolve(__dirname, 'src/rag/runRagIndexer.ts'),
         'tools/ragChecker': resolve(__dirname, 'src/tools/ragChecker.ts'),
-        'utils/getGigaChatToken': resolve(__dirname, 'src/utils/getGigaChatToken.ts'),
+        'utils/getGigaChatToken': resolve(
+          __dirname,
+          'src/utils/getGigaChatToken.ts'
+        ),
         'agent/agentExampleCodeGenerator': resolve(
           __dirname,
           'src/agent-template/agentExampleCodeGenerator.ts'
@@ -82,6 +83,7 @@ export default defineConfig({
         'glob',
         'zod',
         'dotenv',
+        'axios',
       ],
     },
   },
