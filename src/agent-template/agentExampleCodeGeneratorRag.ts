@@ -12,20 +12,20 @@ async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
 
   //? GigaChat langchain (нативная поддержка инструментов)
-  const model = new GigaChat({
-    model: 'GigaChat',
-    temperature: 0.1,
-    credentials: process.env.GIGA_CHAT_API_KEY,
-    // accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
-  });
+  // const model = new GigaChat({
+  //   model: 'GigaChat',
+  //   temperature: 0.1,
+  //   credentials: process.env.GIGA_CHAT_API_KEY,
+  //   // accessToken: process.env.GIGA_CHAT_ACCESS_TOKEN,
+  // });
 
   //? Base model Gigachat (через GenericLLMWrapper)
-  // const model = new GenericLLMWrapper({
-  //   endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
-  //   apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
-  //   modelName: 'GigaChat',
-  //   supportsTools: false //! ПРОПС КОТОРЫЙ НУЖНО ЗНАТЬ ЗАРАНЕЕ ПРИ ВЫБОРЕ МОДЕЛИ
-  // });
+  const model = new GenericLLMWrapper({
+    endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
+    apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
+    modelName: 'GigaChat',
+    supportsTools: false //! ПРОПС КОТОРЫЙ НУЖНО ЗНАТЬ ЗАРАНЕЕ ПРИ ВЫБОРЕ МОДЕЛИ
+  });
 
   const tools = [await createRagRetrieverTool()];
 
@@ -73,9 +73,9 @@ async function runAgentExample() {
       const finalMessage = result.messages[result.messages.length - 1];
 
       // Обрабатываем tool_calls если они есть
-      if (finalMessage.tool_calls && finalMessage.tool_calls.length > 0) {
-        console.log(`[INFO] Агент вызвал ${finalMessage.tool_calls.length} инструмент(ов):`);
-        finalMessage.tool_calls.forEach((call: any, index: number) => {
+      if ((finalMessage as any).tool_calls && (finalMessage as any).tool_calls.length > 0) {
+        console.log(`[INFO] Агент вызвал ${(finalMessage as any).tool_calls.length} инструмент(ов):`);
+        (finalMessage as any).tool_calls.forEach((call: any, index: number) => {
           console.log(`  ${index + 1}. ${call.name}: ${call.args}`);
         });
       }

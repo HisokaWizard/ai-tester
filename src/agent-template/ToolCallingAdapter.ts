@@ -180,8 +180,8 @@ export class ToolCallingAdapter {
               name: tc.name,
               args:
                 typeof tc.arguments === 'string'
-                  ? tc.arguments
-                  : JSON.stringify(tc.arguments),
+                  ? JSON.parse(tc.arguments)
+                  : tc.arguments,
             }));
 
             console.log('[INFO] Создаем AIMessage с tool_calls:', toolCalls);
@@ -198,7 +198,7 @@ export class ToolCallingAdapter {
               {
                 id: generateUUID(),
                 name: requireToolName,
-                args: JSON.stringify({ input: lastUserMessage.content }),
+                args: { input: lastUserMessage.content },
               },
             ];
             return message;

@@ -22,8 +22,8 @@ export class ModelAdapter {
       this.tools = tools;
 
       // Если модель уже поддерживает bindTools (LangChain модели)
-      if (this.isLangChainModel(this.model) && typeof this.model.bindTools === 'function') {
-         return this.model.bindTools(tools, options);
+      if (this.isLangChainModel(this.model) && typeof (this.model as any).bindTools === 'function') {
+         return (this.model as any).bindTools(tools, options);
       }
 
       // Если модель поддерживает другие методы привязки инструментов
