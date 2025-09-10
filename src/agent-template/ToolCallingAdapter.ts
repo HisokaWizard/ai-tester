@@ -150,6 +150,32 @@ export class ToolCallingAdapter {
           const raw = await this.base.invoke(augmented);
           console.log('[DEBUG] Raw model response type:', typeof raw);
           console.log('[DEBUG] Raw model response content:', raw?.content?.substring(0, 200) + '...');
+          console.log('[DEBUG] Raw model response additional_kwargs:', raw?.additional_kwargs);
+
+          // Проверяем, есть ли tool_calls в additional_kwargs
+          if (raw?.additional_kwargs?.tool_calls && Array.isArray(raw.additional_kwargs.tool_calls)) {
+            console.log('[INFO] Найдены tool_calls в additional_kwargs:', raw.additional_kwargs.tool_calls.length);
+
+            const validTools = new Set(tools.map((t) => t.name));
+            const invalidCalls = raw.additional_kwargs.tool_calls.filter(
+              (tc: any) => !validTools.has(tc.name)
+            );
+            if (invalidCalls.length > 0) {
+              console.log('[DEBUG] Invalid tool calls:', invalidCalls);
+              return new AIMessage('Ошибка: инструмент не найден.');
+            }
+
+            const toolCalls = raw.additional_kwargs.tool_calls.map((tc: any) => ({
+              id: tc.id || generateUUID(),
+              name: tc.name,
+              args: tc.args || tc.arguments || {},
+            }));
+
+            console.log('[INFO] Создаем AIMessage с tool_calls:', toolCalls);
+            const message = new AIMessage('');
+            message.tool_calls = toolCalls;
+            return message;
+          }
 
           const content: string =
             typeof raw === 'string' ? raw : (raw?.content ?? '');
