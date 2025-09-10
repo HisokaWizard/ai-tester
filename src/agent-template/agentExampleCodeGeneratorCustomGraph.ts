@@ -1,7 +1,7 @@
 // main.ts
 import { ChatOpenAI } from '@langchain/openai';
 
-import { AgentState, callModel, CustomAgent } from './agent-template';
+import { AgentState, CustomAgent, createUnifiedModelWithTools } from './agent-template';
 import { ragRetrieverFunc } from '../tools/ragRetrieverTool';
 import fs from 'fs';
 import { END, START, StateGraph } from '@langchain/langgraph';
@@ -53,10 +53,22 @@ async function runAgentExample() {
       },
     });
 
+    // Создаем единую модель с инструментами
+    const unifiedModel = createUnifiedModelWithTools(model, tools);
+
     // Узлы графа используют методы этого класса.
     // Это позволяет кастомным графам также вызывать их.
-    workflow.addNode('agent', (state: AgentState) => {
-      return callModel(model, tools, systemPromptText, state);
+    workflow.addNode('agent', async (state: AgentState) => {
+      const { ChatPromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate } = await import('@langchain/core/prompts');
+
+      const prompt = ChatPromptTemplate.fromMessages([
+        SystemMessagePromptTemplate.fromTemplate(systemPromptText),
+        new MessagesPlaceholder('messages'),
+      ]);
+
+      const chain = prompt.pipe(unifiedModel as any);
+      const response = await chain.invoke({ messages: state.messages });
+      return { messages: [response] };
     });
     workflow.addNode('bitcoin', async (state: AgentState) => {
       const result = await getBitcoinPrice(state as AgentState);

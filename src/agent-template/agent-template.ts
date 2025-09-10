@@ -17,6 +17,97 @@ export interface AgentState {
   messages: BaseMessage[];
 }
 
+// --- 1.1. Единый интерфейс для всех типов моделей ---
+export interface UnifiedModel {
+  invoke(input: { messages: BaseMessage[] } | BaseMessage[]): Promise<AIMessage>;
+}
+
+// --- 1.2. Функция для создания единой модели с инструментами ---
+export function createUnifiedModelWithTools(
+  model: BaseLanguageModel,
+  tools: ToolInterface[]
+): UnifiedModel {
+  console.log('[DEBUG] Создание единой модели с инструментами:', {
+    modelType: model?.constructor?.name,
+    hasBindTools: typeof (model as any)?.bindTools === 'function',
+    hasWithTools: typeof (model as any)?.withTools === 'function',
+    hasWithFunctions: typeof (model as any)?.withFunctions === 'function',
+    hasBind: typeof (model as any)?.bind === 'function',
+  });
+
+  // Пробуем нативные методы LangChain
+  if (typeof (model as any)?.bindTools === 'function') {
+    try {
+      const boundModel = (model as any).bindTools(tools, { tool_choice: 'auto' });
+      console.log('[INFO] Используется bindTools');
+      return {
+        invoke: async (input: { messages: BaseMessage[] } | BaseMessage[]) => {
+          const messages = Array.isArray(input) ? input : input.messages;
+          return await boundModel.invoke({ messages });
+        }
+      };
+    } catch (e: any) {
+      console.warn('[WARN] bindTools не сработал:', e?.message ?? e);
+    }
+  }
+
+  if (typeof (model as any)?.withTools === 'function') {
+    try {
+      const boundModel = (model as any).withTools(tools);
+      console.log('[INFO] Используется withTools');
+      return {
+        invoke: async (input: { messages: BaseMessage[] } | BaseMessage[]) => {
+          const messages = Array.isArray(input) ? input : input.messages;
+          return await boundModel.invoke({ messages });
+        }
+      };
+    } catch (e: any) {
+      console.warn('[WARN] withTools не сработал:', e?.message ?? e);
+    }
+  }
+
+  if (typeof (model as any)?.withFunctions === 'function') {
+    try {
+      const boundModel = (model as any).withFunctions(tools);
+      console.log('[INFO] Используется withFunctions');
+      return {
+        invoke: async (input: { messages: BaseMessage[] } | BaseMessage[]) => {
+          const messages = Array.isArray(input) ? input : input.messages;
+          return await boundModel.invoke({ messages });
+        }
+      };
+    } catch (e: any) {
+      console.warn('[WARN] withFunctions не сработал:', e?.message ?? e);
+    }
+  }
+
+  if (typeof (model as any)?.bind === 'function') {
+    try {
+      const boundModel = (model as any).bind({ tools, tool_choice: 'auto' });
+      console.log('[INFO] Используется bind');
+      return {
+        invoke: async (input: { messages: BaseMessage[] } | BaseMessage[]) => {
+          const messages = Array.isArray(input) ? input : input.messages;
+          return await boundModel.invoke({ messages });
+        }
+      };
+    } catch (e: any) {
+      console.warn('[WARN] bind не сработал:', e?.message ?? e);
+    }
+  }
+
+  // Fallback: используем ToolCallingAdapter
+  console.log('[INFO] Используется ToolCallingAdapter');
+  const adapter = new ToolCallingAdapter(model as any);
+  const adaptedModel = adapter.bindTools(tools, { tool_choice: 'auto' });
+
+  return {
+    invoke: async (input: { messages: BaseMessage[] } | BaseMessage[]) => {
+      return await adaptedModel.invoke(input);
+    }
+  };
+}
+
 // --- 2. Интерфейс для опций агента (с опциональным графом) ---
 interface AgentOptions {
   model: BaseLanguageModel;
@@ -34,12 +125,17 @@ export class CustomAgent {
   protected model: BaseLanguageModel;
   protected tools: ToolInterface[];
   protected compiledGraph: Runnable<AgentState, any>;
+  protected unifiedModel: UnifiedModel;
 
   private chatHistory: BaseMessage[] = [];
 
   constructor(options: AgentOptions) {
     this.model = options.model;
     this.tools = options.tools;
+
+    // Создаем единую модель с инструментами
+    this.unifiedModel = createUnifiedModelWithTools(this.model, this.tools);
+
     let graph: StateGraph<any>;
 
     // ✨ Проверяем, был ли предоставлен кастомный граф
@@ -72,9 +168,8 @@ export class CustomAgent {
 
     // Узлы графа используют методы этого класса.
     // Это позволяет кастомным графам также вызывать их.
-    // workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
     workflow.addNode('agent', (state) =>
-      callModel(this.model, this.tools, systemPromptText, state)
+      this.callModel(systemPromptText, state)
     );
     workflow.addNode('action', new ToolNode(this.tools));
 
@@ -143,127 +238,50 @@ export class CustomAgent {
   public addMessagesToHistory(messages: BaseMessage[]): void {
     this.chatHistory.push(...messages);
   }
+
+  // --- 8. Метод для вызова модели (используется в графах) ---
+  public async callModel(
+    systemPromptText: string,
+    state: AgentState
+  ): Promise<Partial<AgentState>> {
+    console.log('\n--- [DEBUG] Вызов узла "agent" ---');
+
+    const prompt = ChatPromptTemplate.fromMessages([
+      SystemMessagePromptTemplate.fromTemplate(systemPromptText),
+      new MessagesPlaceholder('messages'),
+    ]);
+
+    const chain = prompt.pipe(this.unifiedModel as any);
+
+    try {
+      const response = (await chain.invoke({
+        messages: state.messages,
+      })) as AIMessage;
+
+      console.log('[DEBUG] Ответ модели:', response);
+      if (!response?.tool_calls || response.tool_calls.length === 0) {
+        console.log(
+          '[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.'
+        );
+      }
+      if (response?.tool_calls?.length) {
+        console.log(
+          '[DEBUG] Обнаружены tool_calls:',
+          (response as any).tool_calls
+        );
+      }
+
+      return { messages: [response] };
+    } catch (error: any) {
+      console.error('[ERROR] Ошибка в callModel:', error);
+      return {
+        messages: [
+          new AIMessage(
+            `Произошла ошибка при обращении к модели: ${error.message}`
+          ),
+        ],
+      };
+    }
+  }
 }
 
-export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
-  const wrapIfNeeded = (candidate: any) => {
-    if (typeof candidate === 'function') return candidate;
-    if (candidate && typeof candidate.invoke === 'function') {
-      return (input: any) => candidate.invoke(input);
-    }
-    return candidate;
-  };
-
-  console.log('[DEBUG] model caps:', {
-    name: model?.constructor?.name,
-    hasBindTools: typeof model?.bindTools === 'function',
-    hasWithTools: typeof model?.withTools === 'function',
-    hasWithFunctions: typeof model?.withFunctions === 'function',
-    hasBind: typeof model?.bind === 'function',
-  });
-
-  // Универсально: сначала нативные пути (bindTools/withTools/withFunctions), иначе адаптер
-
-  // Логируем только удачные применения, не намерения
-  if (typeof model?.bindTools === 'function') {
-    try {
-      const m = model.bindTools(tools, { tool_choice: 'auto' });
-      console.log('[INFO] bindTools применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn(
-        '[WARN] bindTools не сработал, пробую другие варианты:',
-        e?.message ?? e
-      );
-    }
-  }
-
-  if (typeof model?.withTools === 'function') {
-    try {
-      const m = model.withTools(tools);
-      console.log('[INFO] withTools применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn('[WARN] withTools не сработал, продолжаю:', e?.message ?? e);
-    }
-  }
-
-  if (typeof model?.withFunctions === 'function') {
-    try {
-      const m = model.withFunctions(tools);
-      console.log('[INFO] withFunctions применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn(
-        '[WARN] withFunctions не сработал, продолжаю:',
-        e?.message ?? e
-      );
-    }
-  }
-
-  if (typeof model?.bind === 'function') {
-    try {
-      const m = model.bind({ tools, tool_choice: 'auto' });
-      console.log('[INFO] bind применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn('[WARN] bind не сработал, продолжаю:', e?.message ?? e);
-    }
-  }
-
-  console.log(
-    '[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.'
-  );
-  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, {
-    tool_choice: 'auto',
-  });
-  return wrapIfNeeded(adapted);
-};
-
-export const callModel = async (
-  model: BaseLanguageModel,
-  tools: ToolInterface[],
-  systemPromptText: string,
-  state: AgentState
-): Promise<Partial<AgentState>> => {
-  console.log('\n--- [DEBUG] Вызов узла "agent" ---');
-
-  const prompt = ChatPromptTemplate.fromMessages([
-    SystemMessagePromptTemplate.fromTemplate(systemPromptText),
-    new MessagesPlaceholder('messages'),
-  ]);
-
-  const modelWithTools = ensureToolCalling(model as any, tools);
-
-  const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
-
-  try {
-    const response = (await chain.invoke({
-      messages: state.messages,
-    })) as AIMessage;
-
-    console.log('[DEBUG] Ответ модели:', response);
-    if (!response?.tool_calls || response.tool_calls.length === 0) {
-      console.log(
-        '[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.'
-      );
-    }
-    if (response?.tool_calls?.length) {
-      console.log(
-        '[DEBUG] Обнаружены tool_calls:',
-        (response as any).tool_calls
-      );
-    }
-
-    return { messages: [response] };
-  } catch (error: any) {
-    console.error('[ERROR] Ошибка в callModel:', error);
-    return {
-      messages: [
-        new AIMessage(
-          `Произошла ошибка при обращении к модели: ${error.message}`
-        ),
-      ],
-    };
-  }
-};
