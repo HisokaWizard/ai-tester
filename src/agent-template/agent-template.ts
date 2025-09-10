@@ -10,6 +10,7 @@ import { END, START, StateGraph } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 import { ToolCallingAdapter } from './ToolCallingAdapter';
+import { bindToolsToModel } from './ModelAdapter';
 
 // --- 1. Определение типа состояния агента ---
 // Используем интерфейс для большей ясности
@@ -145,79 +146,12 @@ export class CustomAgent {
   }
 }
 
+/**
+ * Элегантная функция для привязки инструментов к модели
+ * Поддерживает как LangChain модели, так и кастомные обертки
+ */
 export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
-  const wrapIfNeeded = (candidate: any) => {
-    if (typeof candidate === 'function') return candidate;
-    if (candidate && typeof candidate.invoke === 'function') {
-      return (input: any) => candidate.invoke(input);
-    }
-    return candidate;
-  };
-
-  console.log('[DEBUG] model caps:', {
-    name: model?.constructor?.name,
-    hasBindTools: typeof model?.bindTools === 'function',
-    hasWithTools: typeof model?.withTools === 'function',
-    hasWithFunctions: typeof model?.withFunctions === 'function',
-    hasBind: typeof model?.bind === 'function',
-  });
-
-  // Универсально: сначала нативные пути (bindTools/withTools/withFunctions), иначе адаптер
-
-  // Логируем только удачные применения, не намерения
-  if (typeof model?.bindTools === 'function') {
-    try {
-      const m = model.bindTools(tools, { tool_choice: 'auto' });
-      console.log('[INFO] bindTools применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn(
-        '[WARN] bindTools не сработал, пробую другие варианты:',
-        e?.message ?? e
-      );
-    }
-  }
-
-  if (typeof model?.withTools === 'function') {
-    try {
-      const m = model.withTools(tools);
-      console.log('[INFO] withTools применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn('[WARN] withTools не сработал, продолжаю:', e?.message ?? e);
-    }
-  }
-
-  if (typeof model?.withFunctions === 'function') {
-    try {
-      const m = model.withFunctions(tools);
-      console.log('[INFO] withFunctions применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn(
-        '[WARN] withFunctions не сработал, продолжаю:',
-        e?.message ?? e
-      );
-    }
-  }
-
-  if (typeof model?.bind === 'function') {
-    try {
-      const m = model.bind({ tools, tool_choice: 'auto' });
-      console.log('[INFO] bind применён.');
-      return wrapIfNeeded(m);
-    } catch (e: any) {
-      console.warn('[WARN] bind не сработал, продолжаю:', e?.message ?? e);
-    }
-  }
-
-  console.log(
-    '[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.'
-  );
-  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, {
-    tool_choice: 'auto',
-  });
-  return wrapIfNeeded(adapted);
+  return bindToolsToModel(model, tools, { tool_choice: 'auto' });
 };
 
 export const callModel = async (
@@ -233,7 +167,41 @@ export const callModel = async (
     new MessagesPlaceholder('messages'),
   ]);
 
+  // Элегантная привязка инструментов - работает с любым типом модели
   const modelWithTools = ensureToolCalling(model as any, tools);
+
+  // Если это кастомная модель, вызываем напрямую без chain
+  if (typeof modelWithTools.invoke === 'function' && !modelWithTools.pipe) {
+    try {
+      const response = await modelWithTools.invoke({
+        messages: state.messages,
+      }) as AIMessage;
+
+      console.log('[DEBUG] Ответ модели:', response);
+      if (!response?.tool_calls || response.tool_calls.length === 0) {
+        console.log(
+          '[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.'
+        );
+      }
+      if (response?.tool_calls?.length) {
+        console.log(
+          '[DEBUG] Обнаружены tool_calls:',
+          (response as any).tool_calls
+        );
+      }
+
+      return { messages: [response] };
+    } catch (error: any) {
+      console.error('[ERROR] Ошибка в callModel:', error);
+      return {
+        messages: [
+          new AIMessage(
+            `Произошла ошибка при обращении к модели: ${error.message}`
+          ),
+        ],
+      };
+    }
+  }
 
   const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
 

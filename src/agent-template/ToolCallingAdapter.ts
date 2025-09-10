@@ -1,5 +1,14 @@
 // ToolCallingAdapter.ts
-import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+
+// Функция для генерации UUID, совместимая с браузером
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export interface ToolSpec {
   name: string;
@@ -76,10 +85,10 @@ export class ToolCallingAdapter {
     tools: ToolSpec[],
     options: {
       tool_choice?:
-        | 'auto'
-        | 'none'
-        | 'required'
-        | { type: 'tool'; name: string };
+      | 'auto'
+      | 'none'
+      | 'required'
+      | { type: 'tool'; name: string };
     } = { tool_choice: 'auto' }
   ) {
     tools.forEach((t, idx) => {
@@ -105,7 +114,7 @@ export class ToolCallingAdapter {
 
     const requireToolName =
       typeof options?.tool_choice === 'object' &&
-      options.tool_choice?.type === 'tool'
+        options.tool_choice?.type === 'tool'
         ? options.tool_choice.name
         : options?.tool_choice === 'required'
           ? tools[0]?.name // Первый инструмент по умолчанию
@@ -130,24 +139,33 @@ export class ToolCallingAdapter {
           nonSystem.find((m) => m.getType() === 'human') ||
           nonSystem[nonSystem.length - 1];
         const augmented = [
-          new AIMessage(systemInstruction, { type: 'system' }),
+          new SystemMessage(systemInstruction),
           ...nonSystem,
         ];
 
         try {
+          console.log('[DEBUG] ToolCallingAdapter: Отправляем запрос к модели');
+          console.log('[DEBUG] System instruction:', systemInstruction.substring(0, 200) + '...');
+
           const raw = await this.base.invoke(augmented);
-          // console.log('[DEBUG] Raw model response:', raw);
+          console.log('[DEBUG] Raw model response type:', typeof raw);
+          console.log('[DEBUG] Raw model response content:', raw?.content?.substring(0, 200) + '...');
+
           const content: string =
             typeof raw === 'string' ? raw : (raw?.content ?? '');
 
           const parsed = tryExtractJsonWithToolCalls(content) as {
             tool_calls?: { name: string; arguments: any }[];
           } | null;
+
+          console.log('[DEBUG] Parsed tool calls:', parsed);
           if (
             parsed &&
             Array.isArray(parsed.tool_calls) &&
             parsed.tool_calls.length > 0
           ) {
+            console.log('[INFO] Найдены tool_calls:', parsed.tool_calls.length);
+
             const validTools = new Set(tools.map((t) => t.name));
             const invalidCalls = parsed.tool_calls.filter(
               (tc) => !validTools.has(tc.name)
@@ -157,32 +175,33 @@ export class ToolCallingAdapter {
               return new AIMessage('Ошибка: инструмент не найден.');
             }
 
-            return new AIMessage('', {
-              tool_calls: parsed.tool_calls.map((tc) => ({
-                id: crypto.randomUUID(),
-                type: 'tool_call',
-                name: tc.name,
-                args:
-                  typeof tc.arguments === 'string'
-                    ? tc.arguments
-                    : JSON.stringify(tc.arguments),
-              })),
-            });
+            const toolCalls = parsed.tool_calls.map((tc) => ({
+              id: generateUUID(),
+              name: tc.name,
+              args:
+                typeof tc.arguments === 'string'
+                  ? tc.arguments
+                  : JSON.stringify(tc.arguments),
+            }));
+
+            console.log('[INFO] Создаем AIMessage с tool_calls:', toolCalls);
+            const message = new AIMessage('');
+            message.tool_calls = toolCalls;
+            return message;
           }
 
           // Fallback: если требуется инструмент и модель не вернула tool_calls
           if (requireToolName && lastUserMessage instanceof HumanMessage) {
             console.log('[DEBUG] Forcing tool call for:', requireToolName);
-            return new AIMessage('', {
-              tool_calls: [
-                {
-                  id: crypto.randomUUID(),
-                  type: 'tool_call',
-                  name: requireToolName,
-                  args: JSON.stringify({ input: lastUserMessage.content }),
-                },
-              ],
-            });
+            const message = new AIMessage('');
+            message.tool_calls = [
+              {
+                id: generateUUID(),
+                name: requireToolName,
+                args: JSON.stringify({ input: lastUserMessage.content }),
+              },
+            ];
+            return message;
           }
 
           return new AIMessage(content);

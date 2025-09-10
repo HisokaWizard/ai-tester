@@ -54,17 +54,17 @@ export class GenericLLMWrapper implements BaseInvokeModel {
     };
     return tools
       ? {
-          ...payload,
-          tools: tools.map((tool) => ({
-            type: 'function',
-            function: {
-              name: tool.name,
-              description: tool.description || '',
-              parameters: tool.schema || { type: 'object', properties: {} },
-            },
-          })),
-          tool_choice,
-        }
+        ...payload,
+        tools: tools.map((tool) => ({
+          type: 'function',
+          function: {
+            name: tool.name,
+            description: tool.description || '',
+            parameters: tool.schema || { type: 'object', properties: {} },
+          },
+        })),
+        tool_choice,
+      }
       : payload;
   }
 
@@ -133,6 +133,7 @@ export class GenericLLMWrapper implements BaseInvokeModel {
         },
       };
     } else {
+      // Используем ToolCallingAdapter для моделей без нативной поддержки инструментов
       return new ToolCallingAdapter(this).bindTools(tools, options);
     }
   }
