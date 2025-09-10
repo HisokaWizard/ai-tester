@@ -170,46 +170,24 @@ export const callModel = async (
   // Элегантная привязка инструментов - работает с любым типом модели
   const modelWithTools = ensureToolCalling(model as any, tools);
 
-  // Если это кастомная модель, вызываем напрямую без chain
-  if (typeof modelWithTools.invoke === 'function' && !modelWithTools.pipe) {
-    try {
-      const response = await modelWithTools.invoke({
-        messages: state.messages,
-      }) as AIMessage;
-
-      console.log('[DEBUG] Ответ модели:', response);
-      if (!response?.tool_calls || response.tool_calls.length === 0) {
-        console.log(
-          '[INFO] Модель не запросила инструмент (tool_calls пусты). Возможно, нужен адаптер/усиление промпта или другой провайдер.'
-        );
-      }
-      if (response?.tool_calls?.length) {
-        console.log(
-          '[DEBUG] Обнаружены tool_calls:',
-          (response as any).tool_calls
-        );
-      }
-
-      return { messages: [response] };
-    } catch (error: any) {
-      console.error('[ERROR] Ошибка в callModel:', error);
-      return {
-        messages: [
-          new AIMessage(
-            `Произошла ошибка при обращении к модели: ${error.message}`
-          ),
-        ],
-      };
-    }
-  }
-
-  const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
+  // Получаем ответ от модели
+  let response: AIMessage;
 
   try {
-    const response = (await chain.invoke({
-      messages: state.messages,
-    })) as AIMessage;
+    // Если это кастомная модель, вызываем напрямую без chain
+    if (typeof modelWithTools.invoke === 'function' && !modelWithTools.pipe) {
+      response = await modelWithTools.invoke({
+        messages: state.messages,
+      }) as AIMessage;
+    } else {
+      // Для LangChain моделей используем chain
+      const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
+      response = (await chain.invoke({
+        messages: state.messages,
+      })) as AIMessage;
+    }
 
+    // Общая обработка ответа
     console.log('[DEBUG] Ответ модели:', response);
     if (!response?.tool_calls || response.tool_calls.length === 0) {
       console.log(
