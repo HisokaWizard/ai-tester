@@ -1,5 +1,5 @@
 // ToolCallingAdapter.ts
-import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
 export interface ToolSpec {
   name: string;
@@ -76,10 +76,10 @@ export class ToolCallingAdapter {
     tools: ToolSpec[],
     options: {
       tool_choice?:
-        | 'auto'
-        | 'none'
-        | 'required'
-        | { type: 'tool'; name: string };
+      | 'auto'
+      | 'none'
+      | 'required'
+      | { type: 'tool'; name: string };
     } = { tool_choice: 'auto' }
   ) {
     tools.forEach((t, idx) => {
@@ -105,7 +105,7 @@ export class ToolCallingAdapter {
 
     const requireToolName =
       typeof options?.tool_choice === 'object' &&
-      options.tool_choice?.type === 'tool'
+        options.tool_choice?.type === 'tool'
         ? options.tool_choice.name
         : options?.tool_choice === 'required'
           ? tools[0]?.name // Первый инструмент по умолчанию
@@ -130,7 +130,7 @@ export class ToolCallingAdapter {
           nonSystem.find((m) => m.getType() === 'human') ||
           nonSystem[nonSystem.length - 1];
         const augmented = [
-          new AIMessage(systemInstruction, { type: 'system' }),
+          new SystemMessage(systemInstruction),
           ...nonSystem,
         ];
 
@@ -157,15 +157,16 @@ export class ToolCallingAdapter {
               return new AIMessage('Ошибка: инструмент не найден.');
             }
 
-            return new AIMessage('', {
+            return new AIMessage({
+              content: '',
               tool_calls: parsed.tool_calls.map((tc) => ({
                 id: crypto.randomUUID(),
                 type: 'tool_call',
                 name: tc.name,
                 args:
                   typeof tc.arguments === 'string'
-                    ? tc.arguments
-                    : JSON.stringify(tc.arguments),
+                    ? JSON.stringify(tc.arguments)
+                    : tc.arguments,
               })),
             });
           }

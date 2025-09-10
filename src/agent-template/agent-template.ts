@@ -146,13 +146,6 @@ export class CustomAgent {
 }
 
 export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
-  const wrapIfNeeded = (candidate: any) => {
-    if (typeof candidate === 'function') return candidate;
-    if (candidate && typeof candidate.invoke === 'function') {
-      return (input: any) => candidate.invoke(input);
-    }
-    return candidate;
-  };
 
   console.log('[DEBUG] model caps:', {
     name: model?.constructor?.name,
@@ -169,7 +162,7 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
     try {
       const m = model.bindTools(tools, { tool_choice: 'auto' });
       console.log('[INFO] bindTools применён.');
-      return wrapIfNeeded(m);
+      return m;
     } catch (e: any) {
       console.warn(
         '[WARN] bindTools не сработал, пробую другие варианты:',
@@ -182,7 +175,7 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
     try {
       const m = model.withTools(tools);
       console.log('[INFO] withTools применён.');
-      return wrapIfNeeded(m);
+      return m;
     } catch (e: any) {
       console.warn('[WARN] withTools не сработал, продолжаю:', e?.message ?? e);
     }
@@ -192,7 +185,7 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
     try {
       const m = model.withFunctions(tools);
       console.log('[INFO] withFunctions применён.');
-      return wrapIfNeeded(m);
+      return m;
     } catch (e: any) {
       console.warn(
         '[WARN] withFunctions не сработал, продолжаю:',
@@ -205,7 +198,7 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
     try {
       const m = model.bind({ tools, tool_choice: 'auto' });
       console.log('[INFO] bind применён.');
-      return wrapIfNeeded(m);
+      return m;
     } catch (e: any) {
       console.warn('[WARN] bind не сработал, продолжаю:', e?.message ?? e);
     }
@@ -214,10 +207,10 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
   console.log(
     '[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.'
   );
-  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, {
-    tool_choice: 'auto',
-  });
-  return wrapIfNeeded(adapted);
+
+  const adapted = new ToolCallingAdapter(model as any)
+    .bindTools(tools, { tool_choice: 'auto' });
+  return (input: { messages: BaseMessage[] } | BaseMessage[]) => adapted.invoke(input);
 };
 
 export const callModel = async (

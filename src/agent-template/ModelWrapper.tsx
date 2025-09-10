@@ -54,17 +54,17 @@ export class GenericLLMWrapper implements BaseInvokeModel {
     };
     return tools
       ? {
-          ...payload,
-          tools: tools.map((tool) => ({
-            type: 'function',
-            function: {
-              name: tool.name,
-              description: tool.description || '',
-              parameters: tool.schema || { type: 'object', properties: {} },
-            },
-          })),
-          tool_choice,
-        }
+        ...payload,
+        tools: tools.map((tool) => ({
+          type: 'function',
+          function: {
+            name: tool.name,
+            description: tool.description || '',
+            parameters: tool.schema || { type: 'object', properties: {} },
+          },
+        })),
+        tool_choice,
+      }
       : payload;
   }
 
@@ -110,30 +110,12 @@ export class GenericLLMWrapper implements BaseInvokeModel {
           type: 'tool_call',
           name: tc.function.name,
           args:
-            typeof tc.function.arguments === 'string'
-              ? tc.function.arguments
-              : JSON.stringify(tc.function.arguments),
+            typeof tc.arguments === 'string'
+              ? JSON.stringify(tc.arguments)
+              : tc.arguments,
         })),
       });
     }
     return new AIMessage(message.content || '');
-  }
-
-  bindTools(
-    tools: any[],
-    options: { tool_choice?: any } = { tool_choice: 'auto' }
-  ) {
-    if (this.config.supportsTools) {
-      return {
-        invoke: async (input: any) => {
-          return this.invoke(input, {
-            tools,
-            tool_choice: options.tool_choice,
-          });
-        },
-      };
-    } else {
-      return new ToolCallingAdapter(this).bindTools(tools, options);
-    }
   }
 }
