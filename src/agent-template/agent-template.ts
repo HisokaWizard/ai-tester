@@ -10,6 +10,8 @@ import { END, START, StateGraph } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 import { ToolCallingAdapter } from './ToolCallingAdapter';
+import { BaseCallbackHandler } from '@langchain/core/callbacks/base';
+import { VerboseAgentLogger } from '@/tools/logger';
 
 // --- 1. Определение типа состояния агента ---
 // Используем интерфейс для большей ясности
@@ -27,6 +29,7 @@ interface AgentOptions {
    * Если не предоставлен, будет создан стандартный ReAct-граф.
    */
   graph?: StateGraph<any>;
+  logger: VerboseAgentLogger;
 }
 
 // --- 3. Базовый класс CustomAgent ---
@@ -34,12 +37,49 @@ export class CustomAgent {
   protected model: BaseLanguageModel;
   protected tools: ToolInterface[];
   protected compiledGraph: Runnable<AgentState, any>;
+  protected logger: VerboseAgentLogger;
 
   private chatHistory: BaseMessage[] = [];
 
   constructor(options: AgentOptions) {
     this.model = options.model;
-    this.tools = options.tools;
+
+    const wrappedTools = options.tools.map((tool) => {
+      const originalFunc = tool.invoke;
+
+      tool.invoke = async (input: string) => {
+        const runId = `tool_${Date.now()}_${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
+
+        try {
+          if (this.logger.handleToolStart) {
+            this.logger.handleToolStart({ name: tool.name }, input, runId, undefined);
+          }
+
+          const result = await originalFunc.call(tool, input);
+
+          if (this.logger.handleToolEnd) {
+            this.logger.handleToolEnd(result, runId);
+          }
+
+          return result;
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error(String(error));
+
+          if (this.logger.handleToolError) {
+            this.logger.handleToolError(err, runId);
+          }
+
+          throw err;
+        }
+      };
+
+      return tool;
+    });
+
+    this.tools = wrappedTools;
+    this.logger = options.logger;
     let graph: StateGraph<any>;
 
     // ✨ Проверяем, был ли предоставлен кастомный граф
@@ -74,7 +114,7 @@ export class CustomAgent {
     // Это позволяет кастомным графам также вызывать их.
     // workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
     workflow.addNode('agent', (state) =>
-      callModel(this.model, this.tools, systemPromptText, state)
+      callModel(this.model, this.tools, systemPromptText, state, this.logger)
     );
     workflow.addNode('action', new ToolNode(this.tools));
 
@@ -217,7 +257,8 @@ export const callModel = async (
   model: BaseLanguageModel,
   tools: ToolInterface[],
   systemPromptText: string,
-  state: AgentState
+  state: AgentState,
+  logger: BaseCallbackHandler,
 ): Promise<Partial<AgentState>> => {
   console.log('\n--- [DEBUG] Вызов узла "agent" ---');
 
@@ -228,7 +269,11 @@ export const callModel = async (
 
   const modelWithTools = ensureToolCalling(model as any, tools);
 
-  const chain = prompt.pipe(modelWithTools as BaseLanguageModel);
+  const chain = prompt.pipe(modelWithTools as BaseLanguageModel)
+    .withConfig({
+      callbacks: [logger],
+      runName: logger.name,
+    });
 
   try {
     const response = (await chain.invoke({

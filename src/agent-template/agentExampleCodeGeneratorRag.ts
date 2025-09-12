@@ -7,6 +7,7 @@ import fs from 'fs';
 import { GigaChat } from 'langchain-gigachat';
 import { GenericLLMWrapper } from './ModelWrapper';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
+import { VerboseAgentLogger } from '@/tools/logger';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -42,10 +43,13 @@ async function runAgentExample() {
     6.  Будьте вежливы и профессиональны.
   `;
 
+  const logger = new VerboseAgentLogger();
+
   const agent = new CustomAgent({
     model: model as BaseLanguageModel,
     systemPrompt: systemPrompt,
     tools: tools,
+    logger,
   });
 
   console.log('Агент инициализирован.\n');
