@@ -1,7 +1,11 @@
-// ToolCallingAdapter.ts
-import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import {
+  AIMessage,
+  BaseMessage,
+  HumanMessage,
+  SystemMessage,
+} from '@langchain/core/messages';
 
-export interface ToolSpec {
+export interface ToolType {
   name: string;
   description?: string;
   schema?: any;
@@ -12,30 +16,30 @@ export interface BaseInvokeModel {
   invoke: (input: { messages: BaseMessage[] } | BaseMessage[]) => Promise<any>;
 }
 
-function normalizeMessages(
+const normalizeMessages = (
   input: { messages: BaseMessage[] } | BaseMessage[]
-): BaseMessage[] {
+): BaseMessage[] => {
   return Array.isArray(input) ? input : input.messages;
-}
+};
 
-function safeJsonParse<T>(text: string): T | null {
+const safeJsonParse = <T>(text: string): T | null => {
   try {
     return JSON.parse(text) as T;
   } catch {
     return null;
   }
-}
+};
 
-function stripCodeFences(text: string): string {
+const stripCodeFences = (text: string): string => {
   const trimmed = (text ?? '').trim();
   return trimmed
     .replace(/^```[a-zA-Z]*\n?/, '')
     .replace(/\n?```\s*$/, '')
     .replace(/^`+|`+$/g, '')
     .replace(/^\s*json\s*\n/i, '');
-}
+};
 
-function tryExtractJsonWithToolCalls(text: string): any | null {
+const tryExtractJsonWithToolCalls = (text: string): any | null => {
   const cleaned = stripCodeFences(text);
   let direct = safeJsonParse<any>(cleaned);
   if (direct && typeof direct === 'object') return direct;
@@ -63,7 +67,7 @@ function tryExtractJsonWithToolCalls(text: string): any | null {
   if (end === -1) return null;
   const slice = cleaned.slice(start, end + 1);
   return safeJsonParse<any>(slice);
-}
+};
 
 export class ToolCallingAdapter {
   private readonly base: BaseInvokeModel;
@@ -73,13 +77,13 @@ export class ToolCallingAdapter {
   }
 
   public bindTools(
-    tools: ToolSpec[],
+    tools: ToolType[],
     options: {
       tool_choice?:
-      | 'auto'
-      | 'none'
-      | 'required'
-      | { type: 'tool'; name: string };
+        | 'auto'
+        | 'none'
+        | 'required'
+        | { type: 'tool'; name: string };
     } = { tool_choice: 'auto' }
   ) {
     tools.forEach((t, idx) => {
@@ -105,7 +109,7 @@ export class ToolCallingAdapter {
 
     const requireToolName =
       typeof options?.tool_choice === 'object' &&
-        options.tool_choice?.type === 'tool'
+      options.tool_choice?.type === 'tool'
         ? options.tool_choice.name
         : options?.tool_choice === 'required'
           ? tools[0]?.name // Первый инструмент по умолчанию
@@ -129,10 +133,7 @@ export class ToolCallingAdapter {
         const lastUserMessage =
           nonSystem.find((m) => m.getType() === 'human') ||
           nonSystem[nonSystem.length - 1];
-        const augmented = [
-          new SystemMessage(systemInstruction),
-          ...nonSystem,
-        ];
+        const augmented = [new SystemMessage(systemInstruction), ...nonSystem];
 
         try {
           const raw = await this.base.invoke(augmented);

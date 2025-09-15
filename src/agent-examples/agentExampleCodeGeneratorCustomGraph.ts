@@ -1,17 +1,17 @@
-// main.ts
 import { ChatOpenAI } from '@langchain/openai';
 
-import { AgentState, callModel, CustomAgent } from './agent-template';
+import { CustomAgent } from '../agent-template/AgentTemplate';
 import { ragRetrieverFunc } from '../tools/ragRetrieverTool';
 import fs from 'fs';
 import { END, START, StateGraph } from '@langchain/langgraph';
 import { AIMessage, BaseMessage } from '@langchain/core/messages';
-import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { ToolInterface } from '@langchain/core/tools';
 import { getBitcoinPrice } from '@/tools/getBitcoinPrice';
 import { VECTOR_STORE_PATH } from '@/rag';
 import { VerboseAgentLogger } from '@/tools/logger';
+import { AgentState } from '@/agent-template/AgentTemplate.types';
+import { callModel } from '@/agent-template/AgentTemplate.utils';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -56,8 +56,6 @@ async function runAgentExample() {
       },
     });
 
-    // Узлы графа используют методы этого класса.
-    // Это позволяет кастомным графам также вызывать их.
     workflow.addNode('agent', (state: AgentState) => {
       return callModel({ model, tools, systemPromptText, state, logger });
     });
@@ -71,7 +69,6 @@ async function runAgentExample() {
       return { messages: [new AIMessage(ragAnswer)] };
     });
 
-    // Определяем логику переходов для ReAct-цикла
     workflow.addEdge(START, 'bitcoin' as any);
     workflow.addEdge('bitcoin' as any, 'rag' as any);
     workflow.addEdge('rag' as any, 'agent' as any);
@@ -92,7 +89,6 @@ async function runAgentExample() {
 
   console.log('Агент инициализирован.\n');
 
-  // --- Примеры запросов ---
   const testQueries = [
     'Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag',
     'Удали кнопку забыли пароль',
@@ -127,5 +123,4 @@ async function runAgentExample() {
   console.log('--- Пример завершен ---');
 }
 
-// Запуск примера
 runAgentExample().catch(console.error);

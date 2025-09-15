@@ -6,7 +6,7 @@ import {
   VECTOR_STORE_PATH,
   XenovaEmbeddings,
 } from '@/rag';
-import { AgentState } from '../agent-template/agent-template';
+import { AgentState } from '../agent-template/AgentTemplate';
 import { AIMessage } from '@langchain/core/messages';
 import { NodeCallback } from './types';
 

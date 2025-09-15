@@ -50,15 +50,15 @@ export default defineConfig({
         ),
         'agent/agentExampleCodeGenerator': resolve(
           __dirname,
-          'src/agent-template/agentExampleCodeGenerator.ts'
+          'src/agent-examples/agentExampleCodeGenerator.ts'
         ),
         'agent/agentExampleCodeGeneratorRag': resolve(
           __dirname,
-          'src/agent-template/agentExampleCodeGeneratorRag.ts'
+          'src/agent-examples/agentExampleCodeGeneratorRag.ts'
         ),
         'agent/agentExampleCodeGeneratorCustomGraph': resolve(
           __dirname,
-          'src/agent-template/agentExampleCodeGeneratorCustomGraph.ts'
+          'src/agent-examples/agentExampleCodeGeneratorCustomGraph.ts'
         ),
       },
       output: {

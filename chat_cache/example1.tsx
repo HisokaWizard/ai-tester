@@ -1,53 +1,47 @@
 Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag
 
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
-
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
-К сожалению, возникла проблема при попытке получить примеры стилей для React-компонента формы авторизации через систему поиска RAG (Retrieval-Augmented Generation). 
-
-Тем не менее, я могу предоставить вам пример реализации компонента формы авторизации без использования конкретных стилей из базы данных:
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита. 📭 [RAG] Ничего не найдено по запросу
+Так как поиск по документам ничего не вернул, я предоставлю вам пример компонента React для формы авторизации без привязки к стилю конкретного приложения:
 
 ```javascript
-import React, { useState } from "react";
-import "./LoginForm.css"; // Подключите ваш файл CSS
+import React from 'react';
+import { useState } from 'react';
 
 const LoginForm = () => {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", { login, password });
-    // Здесь можно добавить логику отправки данных на сервер или другие действия
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Логика отправки данных на сервер или другие действия после нажатия кнопки "Войти"
+    console.log('Логин:', username);
+    console.log('Пароль:', password);
   };
 
   return (
-    <div className="login-form-container">
+    <div className="login-form">
+      <h2>Авторизация</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="login">Логин:</label>
-        <input
-          type="text"
-          id="login"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
+        <label htmlFor="username">Логин:</label><br />
+        <input 
+          type="text" 
+          id="username" 
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
-        />
-        <br />
-        <label htmlFor="password">Пароль:</label>
-        <input
-          type="password"
-          id="password"
+        /><br />
+        
+        <label htmlFor="password">Пароль:</label><br />
+        <input 
+          type="password" 
+          id="password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />
-        <br />
-        <button type="submit" className="submit-button">
-          Войти
-        </button>
-        <a href="/forgot-password" className="forgot-link">
-          Забыли пароль?
-        </a>
+        /><br />
+        
+        <button type="submit">Войти</button>&nbsp;
+        <a href="/forgot-password">Забыли пароль?</a>
       </form>
     </div>
   );
@@ -56,98 +50,96 @@ const LoginForm = () => {
 export default LoginForm;
 ```
 
-### Пример файла стилей (`LoginForm.css`):
+### Стилизация
+
+Для простоты примера выше нет CSS-стилей. Если у вас уже есть определённые стили вашего проекта, вы можете применить их через классы (`className`) или использовать встроенные стили (`style`). Например, вот простой вариант стилей для данного компонента:
 
 ```css
-.login-form-container {
+.login-form {
   max-width: 300px;
   margin: auto;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 5px;
   background-color: #f9f9f9;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.login-form-container label,
-.login-form-container input {
+.login-form h2 {
+  text-align: center;
+  color: #4caf50; /* Зелёный цвет */
+}
+
+.login-form label,
+.login-form input {
   display: block;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-.submit-button {
-  background-color: #007bff;
+.login-form button {
+  background-color: #4caf50;
   color: white;
-  font-size: 16px;
   padding: 10px 20px;
-  cursor: pointer;
   border: none;
-  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
   transition: all 0.3s ease-in-out;
 }
 
-.submit-button:hover {
-  background-color: #0056b3;
+.login-form button:hover {
+  background-color: #45a049;
 }
 
-.forgot-link {
+.login-form a {
+  color: #4caf50;
   text-decoration: underline;
-  color: #007bff;
-  float: right;
-  margin-top: -15px;
-}
-
-.forgot-link:hover {
-  color: #0056b3;
 }
 ```
 
-Этот пример демонстрирует базовую структуру формы авторизации с использованием React Hooks и простейшими стилями. Если у вас есть конкретные требования к стилю или функционалу — сообщите мне!
+Если у вас есть конкретные требования по дизайну или стилю — уточните их, чтобы я мог адаптировать решение под ваши нужды.
 Удали кнопку забыли пароль
 
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
-
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
-Вот обновлённый вариант компонента формы авторизации без кнопки «Забыли пароль»:
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, кнопка сабмита, без кнопки забыли пароль. 📭 [RAG] Ничего не найдено по запросу
+Поскольку поиск по документации не дал результатов, предлагаю следующий упрощённый вариант компонента формы авторизации без ссылки «забыли пароль»:
 
 ```jsx
-import React, { useState } from "react";
-import "./LoginForm.css"; // Подключите ваш файл CSS
+import React from 'react';
+import { useState } from 'react';
 
 const LoginForm = () => {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", { login, password });
-    // Логика обработки данных после успешной отправки формы
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Отправка данных на сервер или другая логика при отправке формы
+    console.log('Логин:', username);
+    console.log('Пароль:', password);
   };
 
   return (
-    <div className="login-form-container">
+    <div className="login-form">
+      <h2>Авторизация</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="login">Логин:</label>
-        <input
-          type="text"
-          id="login"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
+        <label htmlFor="username">Логин:</label><br />
+        <input 
+          type="text" 
+          id="username" 
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
-        />
-        <br />
-        <label htmlFor="password">Пароль:</label>
-        <input
-          type="password"
-          id="password"
+        /><br />
+        
+        <label htmlFor="password">Пароль:</label><br />
+        <input 
+          type="password" 
+          id="password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />
-        <br />
-        <button type="submit" className="submit-button">
-          Войти
-        </button>
+        /><br />
+        
+        <button type="submit">Войти</button>
       </form>
     </div>
   );
@@ -156,113 +148,114 @@ const LoginForm = () => {
 export default LoginForm;
 ```
 
-### Файл стилей (`LoginForm.css`) остался прежним за исключением удаления ссылки на забытый пароль:
+### Пример базовых стилей для этого компонента:
 
 ```css
-.login-form-container {
+.login-form {
   max-width: 300px;
   margin: auto;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 5px;
   background-color: #f9f9f9;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.login-form-container label,
-.login-form-container input {
+.login-form h2 {
+  text-align: center;
+  color: #4caf50; /* Цвет заголовка */
+}
+
+.login-form label,
+.login-form input {
   display: block;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-.submit-button {
-  background-color: #007bff;
+.login-form button {
+  background-color: #4caf50;
   color: white;
-  font-size: 16px;
   padding: 10px 20px;
-  cursor: pointer;
   border: none;
-  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
   transition: all 0.3s ease-in-out;
 }
 
-.submit-button:hover {
-  background-color: #0056b3;
+.login-form button:hover {
+  background-color: #45a049;
 }
 ```
 
-Теперь форма выглядит так же, но уже без ссылки на восстановление пароля.
+Этот компонент можно легко интегрировать в ваше приложение и настроить внешний вид согласно вашим требованиям.
 Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению
 
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, кнопка сабмита, кнопка авторизации через крипто-кошелек, тригер ивент при клике на кнопку. 📭 [RAG] Ничего не найдено по запросу
+Так как поиск по данным не принес результата, давайте создадим универсальный компонент формы авторизации с кнопкой подключения криптокошелька. Для взаимодействия с криптовалютными кошельками обычно используется библиотека `window.ethereum`, которая позволяет вызывать события подключения и получения адреса пользователя.
 
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
-Давайте добавим возможность авторизоваться через криптокошелёк. Для этого мы создадим отдельную кнопку, которая будет вызывать событие подключения кошелька. Обычно это реализуется через JavaScript API популярных криптовалютных кошельков вроде MetaMask или WalletConnect.
-
-Пример ниже предполагает использование **MetaMask** как основного провайдера кошелька Ethereum. При нажатии на кнопку будет вызываться метод `window.ethereum.request({ method: 'eth_requestAccounts' })`, который инициирует запрос доступа к аккаунтам пользователя.
-
-## Компонент формы авторизации с кнопкой входа через криптокошелек:
+Вот готовый компонент на основе React:
 
 ```jsx
-import React, { useState } from "react";
-import "./LoginForm.css"; // Подключите ваш файл CSS
+import React from 'react';
+import { useState } from 'react';
 
-// Проверяем наличие Web3 провайдера (например, MetaMask)
-if (!window.ethereum) {
-  alert('Пожалуйста установите расширение MetaMask.');
-}
-
+// Компонент формы авторизации
 const LoginForm = () => {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", { login, password });
-    // Логика обработки данных после успешной отправки формы
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Обработчик отправки обычной формы авторизации
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Отправляем данные:');
+    console.log('Логин:', username);
+    console.log('Пароль:', password);
   };
 
+  // Функция для подключения криптокошелька
   const connectWallet = async () => {
-    try {
-      if (window.ethereum) {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-        console.log('Подключение успешно!');
-      } else {
-        alert('Не удалось найти кошелек');
+        alert("Кошелёк успешно подключён!");
+      } catch (error) {
+        console.error(error.message);
+        alert("Ошибка подключения кошелька.");
       }
-    } catch (error) {
-      console.error(error.message);
+    } else {
+      alert("Метамаск или другой Ethereum кошелек не установлен");
     }
   };
 
   return (
-    <div className="login-form-container">
+    <div className="login-form">
+      <h2>Авторизация</h2>
+      
+      {/* Обычная форма */}
       <form onSubmit={handleSubmit}>
-        <label htmlFor="login">Логин:</label>
-        <input
-          type="text"
-          id="login"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
+        <label htmlFor="username">Логин:</label><br />
+        <input 
+          type="text" 
+          id="username" 
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
-        />
-        <br />
-        <label htmlFor="password">Пароль:</label>
-        <input
-          type="password"
-          id="password"
+        /><br />
+        
+        <label htmlFor="password">Пароль:</label><br />
+        <input 
+          type="password" 
+          id="password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />
-        <br />
-        <button type="submit" className="submit-button">
-          Войти
-        </button>
-        <button type="button" className="wallet-button" onClick={connectWallet}>
-          Авторизация через Crypto Кошелёк
-        </button>
+        /><br />
+        
+        <button type="submit">Войти</button>
       </form>
+
+      {/* Кнопка подключения криптокошелька */}
+      <button onClick={connectWallet}>Подключить кошелёк</button>
     </div>
   );
 };
@@ -270,241 +263,31 @@ const LoginForm = () => {
 export default LoginForm;
 ```
 
-### Стили (`LoginForm.css`)
+### Как это работает?
 
-```css
-.login-form-container {
-  max-width: 300px;
-  margin: auto;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+1. **Обычная форма** – пользователь вводит логин и пароль вручную.
+   
+2. **Кнопка подключения криптокошелька**: При её нажатии вызывается метод `window.ethereum.request({ method: 'eth_requestAccounts' })`. Этот вызов инициирует подключение кошелька (например, MetaMask), запрашивая разрешение от пользователя на доступ к его аккаунту.
 
-.login-form-container label,
-.login-form-container input {
-  display: block;
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-.submit-button,
-.wallet-button {
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  transition: all 0.3s ease-in-out;
-  display: inline-block; /* чтобы кнопки были рядом */
-  margin-right: 10px;
-}
-
-.submit-button:hover,
-.wallet-button:hover {
-  background-color: #0056b3;
-}
-```
-
-### Что происходит при клике на кнопку "Авторизация через Crypto Кошелёк":
-
-Когда пользователь нажимает на кнопку, запускается функция `connectWallet`. Она вызывает метод `window.ethereum.request({ method: 'eth_requestAccounts' })`, что приводит к тому, что MetaMask запрашивает разрешение на доступ к вашему адресу Ethereum. После успешного разрешения вы можете использовать этот адрес для аутентификации пользователя.
-
-Если у вас другой кошелёк (например, Trust Wallet), логика аналогична, просто используйте его API вместо MetaMask.
-
-Таким образом, теперь ваша форма включает стандартную регистрацию через логин и пароль, а также дополнительную опцию авторизации через криптокошелёк.
-Измени кнопку подключения кошельков на конопку которая вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]
-
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
-
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
-Давай реализуем форму авторизации с кнопкой, которая открывает модальное окно выбора доступных криптокошельков (Metamask, Rabby, Keplr, Phantom).
-
-Для начала нам понадобится создать само модальное окно и реализовать функционал открытия окна по клику на кнопку.
-
-### Шаг 1: Реализуем компонент ModalWindow
-
-Создадим простой компонент модального окна, которое отображает список поддерживаемых кошельков:
-
-```jsx
-import React from "react";
-import "./ModalWindow.css";
-
-const ModalWindow = ({ isOpen, closeModal, selectWallet }) => {
-  if (!isOpen) return null;
-  
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Выберите свой кошелек</h2>
-        <ul className="wallet-list">
-          <li><button onClick={() => selectWallet('metamask')}>Metamask</button></li>
-          <li><button onClick={() => selectWallet('rabby')}>Rabby</button></li>
-          <li><button onClick={() => selectWallet('keplr')}>Keplr</button></li>
-          <li><button onClick={() => selectWallet('phantom')}>Phantom</button></li>
-        </ul>
-        <button className="close-modal-btn" onClick={closeModal}>Закрыть</button>
-      </div>
-    </div>
-  );
-};
-
-export default ModalWindow;
-```
-
-### Шаг 2: Добавляем модальное окно в основной компонент формы авторизации
-
-Обновим наш компонент формы авторизации, добавив кнопку вызова модального окна и обработчики событий:
-
-```jsx
-import React, { useState } from "react";
-import ModalWindow from './ModalWindow';
-import "./LoginForm.css";
-
-const LoginForm = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [showModal, setShowModal] = useState(false); // состояние видимости модального окна
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", { login, password });
-  };
-
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
-  const selectWallet = (walletType) => {
-    console.log(`Selected ${walletType}`);
-    closeModal(); // закрываем модальное окно после выбора кошелька
-  };
-
-  return (
-    <>
-      <div className="login-form-container">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="login">Логин:</label>
-          <input
-            type="text"
-            id="login"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-            required
-          />
-          <br />
-          <label htmlFor="password">Пароль:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <br />
-          <button type="submit" className="submit-button">
-            Войти
-          </button>
-          <button type="button" className="wallet-button" onClick={openModal}>
-            Авторизация через кошелек
-          </button>
-        </form>
-      </div>
-      
-      {/* Модальное окно */}
-      <ModalWindow isOpen={showModal} closeModal={closeModal} selectWallet={selectWallet}/>
-    </>
-  );
-};
-
-export default LoginForm;
-```
-
-### Шаг 3: Добавление стилей
-
-В файле стилей `LoginForm.css` добавьте следующие правила для оформления модального окна:
-
-```css
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  min-width: 300px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.wallet-list li {
-  list-style-type: none;
-  margin-bottom: 10px;
-}
-
-.close-modal-btn {
-  background-color: #ccc;
-  color: black;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.close-modal-btn:hover {
-  background-color: #aaa;
-}
-
-.wallet-button {
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  transition: all 0.3s ease-in-out;
-  margin-left: 10px;
-}
-
-.wallet-button:hover {
-  background-color: #0056b3;
-}
-```
+3. После успешного подключения выводится сообщение об успешном подключении.
 
 ---
 
-### Итоговый результат:
+### Примечания:
 
-При клике на кнопку "Авторизация через кошелек", открывается модальное окно с выбором одного из четырёх кошельков (Metamask, Rabby, Keplr, Phantom). Выбор конкретного кошелька выводит сообщение о выбранном типе кошелька в консоли браузера.
+- Убедитесь, что ваш браузер поддерживает Web3 API (например, если используете расширение MetaMask).
+- Данный подход предполагает использование стандартного интерфейса Ethereum (MetaMask, Trust Wallet и т.д.).
 
-После того, как выбор сделан, модальное окно автоматически закрывается. В дальнейшем вы сможете интегрировать реальную логику взаимодействия с каждым конкретным кошельком отдельно.
+Вы можете добавить дополнительные проверки безопасности и обработку ошибок в зависимости от ваших требований.
+Измени кнопку подключения кошельков на конопку которая вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]
+
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, кнопка сабмита, кнопка авторизации через крипто-кошелек, тригер ивент при клике на кнопку, кнопка вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom]. 📭 [RAG] Ничего не найдено по запросу
+Произошла ошибка при обращении к модели: timeout of 30000ms exceeded
 Для каждого кошелька из списка реализуй логику работы с кошельком по клику, а также подпись публичным ключем
 
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
-
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, кнопка сабмита, кнопка авторизации через крипто-кошелек, тригер ивент при клике на кнопку, кнопка вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom], для каждого кошелька из списка реализуй логику работы с кошельком по клику, а также подпись публичным ключем. 📭 [RAG] Ничего не найдено по запросу
 Произошла ошибка при обращении к модели: timeout of 30000ms exceeded
 Вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу
 
-Ошибка загрузки RAG: ❌ Ошибка загрузки VDB:' Could not import hnswlib-node. Please install hnswlib-node as a dependency with, e.g. `npm install -S hnswlib-node`.
-
-Error: Cannot find package 'hnswlib-node' imported from /Users/hisokawizard/Projects/ai-tester/node_modules/@langchain/community/dist/vectorstores/hnswlib.js
+компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, кнопка сабмита, кнопка авторизации через крипто-кошелек, тригер ивент при клике на кнопку, кнопка вызывает всплывающее окно со списком кошельков [metamask, rabby, keplr, phantom], вывод и в верхнем правом углу кнопку disconnect, и адрес подключенного кошелька, после подключения нужно редиректить на главную страницу. 📭 [RAG] Ничего не найдено по запросу
 Произошла ошибка при обращении к модели: timeout of 30000ms exceeded

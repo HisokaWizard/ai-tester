@@ -1,9 +1,8 @@
-// ModelWrapper.ts
 import { BaseMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { BaseInvokeModel, ToolCallingAdapter } from './ToolCallingAdapter';
+import { BaseInvokeModel } from './ToolCallingAdapter';
 import { ToolInterface } from '@langchain/core/tools';
 
-interface LLMConfig {
+export interface LLMConfig {
   endpoint: string;
   apiKey: string;
   modelName: string;
@@ -25,7 +24,6 @@ export class GenericLLMWrapper implements BaseInvokeModel {
   private normalizeMessages(
     messages: BaseMessage[]
   ): { role: string; content: string }[] {
-    // Извлекаем первое системное сообщение, игнорируем остальные
     const systemMessages = messages.filter((m) => m.getType() === 'system');
     const nonSystemMessages = messages.filter((m) => m.getType() !== 'system');
     const firstSystemMessage =
@@ -54,17 +52,17 @@ export class GenericLLMWrapper implements BaseInvokeModel {
     };
     return tools
       ? {
-        ...payload,
-        tools: tools.map((tool) => ({
-          type: 'function',
-          function: {
-            name: tool.name,
-            description: tool.description || '',
-            parameters: tool.schema || { type: 'object', properties: {} },
-          },
-        })),
-        tool_choice,
-      }
+          ...payload,
+          tools: tools.map((tool) => ({
+            type: 'function',
+            function: {
+              name: tool.name,
+              description: tool.description || '',
+              parameters: tool.schema || { type: 'object', properties: {} },
+            },
+          })),
+          tool_choice,
+        }
       : payload;
   }
 

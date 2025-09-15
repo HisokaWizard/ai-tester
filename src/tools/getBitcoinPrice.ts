@@ -1,4 +1,4 @@
-import { AgentState } from '../agent-template/agent-template';
+import { AgentState } from '../agent-template/AgentTemplate';
 import axios from 'axios';
 import { NodeCallback } from './types';
 
