@@ -7,6 +7,7 @@ import fs from 'fs';
 import { GigaChat } from 'langchain-gigachat';
 import { GenericLLMWrapper } from './ModelWrapper';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
+import { VerboseAgentLogger } from '@/tools/logger';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -23,7 +24,7 @@ async function runAgentExample() {
   // const model = new GenericLLMWrapper({
   //   endpoint: 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions',
   //   apiKey: process.env.GIGA_CHAT_ACCESS_TOKEN!,
-  //   modelName: 'GigaChat-Pro',
+  //   modelName: 'GigaChat',
   //   supportsTools: false //! ПРОПС КОТОРЫЙ НУЖНО ЗНАТЬ ЗАРАНЕЕ ПРИ ВЫБОРЕ МОДЕЛИ
   // });
 
@@ -42,17 +43,20 @@ async function runAgentExample() {
     6.  Будьте вежливы и профессиональны.
   `;
 
+  const logger = new VerboseAgentLogger();
+
   const agent = new CustomAgent({
     model: model as BaseLanguageModel,
     systemPrompt: systemPrompt,
     tools: tools,
+    logger,
   });
 
   console.log('Агент инициализирован.\n');
 
   // --- Примеры запросов ---
   const testQueries = [
-    'Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из примеров в rag',
+    'Напиши компонент формы авторизации в приложение, компонент на react, нужно вводить логин и пароль, также кнопка забыли пароль и кнопка сабмита, стили используй исходя из документа rag',
     'Удали кнопку забыли пароль',
 
     'Добавь кнопку авторизации через крипто-кошелек, также при клике на эту кнопку, нужно тригерить ивент по которым кошельки среагируют и попробуют подключиться к приложению',

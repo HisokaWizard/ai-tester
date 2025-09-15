@@ -11,6 +11,7 @@ import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { ToolInterface } from '@langchain/core/tools';
 import { getBitcoinPrice } from '@/tools/getBitcoinPrice';
 import { VECTOR_STORE_PATH } from '@/rag';
+import { VerboseAgentLogger } from '@/tools/logger';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -39,6 +40,8 @@ async function runAgentExample() {
     Ваша задача выполнять все запросы пользователя и при необходимости обращаться к инструментам
   `;
 
+  const logger = new VerboseAgentLogger();
+
   const customGraph = (
     model: BaseLanguageModel,
     tools: ToolInterface[],
@@ -56,7 +59,7 @@ async function runAgentExample() {
     // Узлы графа используют методы этого класса.
     // Это позволяет кастомным графам также вызывать их.
     workflow.addNode('agent', (state: AgentState) => {
-      return callModel(model, tools, systemPromptText, state);
+      return callModel({ model, tools, systemPromptText, state, logger });
     });
     workflow.addNode('bitcoin', async (state: AgentState) => {
       const result = await getBitcoinPrice(state as AgentState);
@@ -84,6 +87,7 @@ async function runAgentExample() {
     systemPrompt: systemPrompt,
     tools: tools,
     graph,
+    logger,
   });
 
   console.log('Агент инициализирован.\n');
