@@ -9,6 +9,7 @@ import { CustomAgent } from './agent-template'; // Убедитесь, что п
 import { createRagRetrieverTool } from '../tools/ragRetrieverTool'; // Убедитесь, что путь правильный
 import fs from 'fs';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
+import { VerboseAgentLogger } from '@/tools/logger';
 
 async function runAgentExample() {
   console.log('--- Запуск примера CustomAgent с RAG ---');
@@ -52,12 +53,15 @@ async function runAgentExample() {
     предостваленный Rag используя соответствующий tools.
   `;
 
+  const logger = new VerboseAgentLogger();
+
   // 4. Создание экземпляра агента
   // Мы используем дефолтный граф, который создается внутри конструктора CustomAgent
   const agent = new CustomAgent({
     model: model2 as BaseLanguageModel,
     systemPrompt: systemPrompt,
     tools: tools,
+    logger,
   });
 
   console.log('Агент инициализирован.\n');

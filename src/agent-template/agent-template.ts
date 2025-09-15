@@ -54,7 +54,12 @@ export class CustomAgent {
 
         try {
           if (this.logger.handleToolStart) {
-            this.logger.handleToolStart({ name: tool.name }, input, runId, undefined);
+            this.logger.handleToolStart(
+              { name: tool.name },
+              input,
+              runId,
+              undefined
+            );
           }
 
           const result = await originalFunc.call(tool, input);
@@ -114,7 +119,13 @@ export class CustomAgent {
     // Это позволяет кастомным графам также вызывать их.
     // workflow.addNode('agent', this.callModel.bind(this, systemPromptText));
     workflow.addNode('agent', (state) =>
-      callModel(this.model, this.tools, systemPromptText, state, this.logger)
+      callModel({
+        model: this.model,
+        tools: this.tools,
+        systemPromptText,
+        state,
+        logger: this.logger,
+      })
     );
     workflow.addNode('action', new ToolNode(this.tools));
 
@@ -186,7 +197,6 @@ export class CustomAgent {
 }
 
 export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
-
   console.log('[DEBUG] model caps:', {
     name: model?.constructor?.name,
     hasBindTools: typeof model?.bindTools === 'function',
@@ -248,18 +258,28 @@ export const ensureToolCalling = (model: any, tools: ToolInterface[]) => {
     '[WARN] Не удалось привязать инструменты: вызываю ToolCallingAdapter.'
   );
 
-  const adapted = new ToolCallingAdapter(model as any)
-    .bindTools(tools, { tool_choice: 'auto' });
-  return (input: { messages: BaseMessage[] } | BaseMessage[]) => adapted.invoke(input);
+  const adapted = new ToolCallingAdapter(model as any).bindTools(tools, {
+    tool_choice: 'auto',
+  });
+  return (input: { messages: BaseMessage[] } | BaseMessage[]) =>
+    adapted.invoke(input);
 };
 
-export const callModel = async (
-  model: BaseLanguageModel,
-  tools: ToolInterface[],
-  systemPromptText: string,
-  state: AgentState,
-  logger: BaseCallbackHandler,
-): Promise<Partial<AgentState>> => {
+interface CallModelProps {
+  model: BaseLanguageModel;
+  tools: ToolInterface[];
+  systemPromptText: string;
+  state: AgentState;
+  logger: BaseCallbackHandler;
+}
+
+export const callModel = async ({
+  model,
+  tools,
+  systemPromptText,
+  state,
+  logger,
+}: CallModelProps): Promise<Partial<AgentState>> => {
   console.log('\n--- [DEBUG] Вызов узла "agent" ---');
 
   const prompt = ChatPromptTemplate.fromMessages([
@@ -269,11 +289,10 @@ export const callModel = async (
 
   const modelWithTools = ensureToolCalling(model as any, tools);
 
-  const chain = prompt.pipe(modelWithTools as BaseLanguageModel)
-    .withConfig({
-      callbacks: [logger],
-      runName: logger.name,
-    });
+  const chain = prompt.pipe(modelWithTools as BaseLanguageModel).withConfig({
+    callbacks: [logger],
+    runName: logger.name,
+  });
 
   try {
     const response = (await chain.invoke({
