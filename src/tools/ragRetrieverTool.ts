@@ -1,4 +1,4 @@
-import { DynamicTool } from '@langchain/core/tools';
+import { DynamicStructuredTool, DynamicTool } from '@langchain/core/tools';
 import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
 import * as fs from 'fs';
 import {
@@ -6,9 +6,9 @@ import {
   VECTOR_STORE_PATH,
   XenovaEmbeddings,
 } from '@/rag';
-import { AgentState } from '../agent-template/AgentTemplate';
 import { AIMessage } from '@langchain/core/messages';
 import { NodeCallback } from './types';
+import * as z from 'zod';
 
 const DEFAULT_TOP_K = 4;
 
@@ -17,11 +17,11 @@ const DEFAULT_TOP_K = 4;
  */
 export async function createRagRetrieverTool(
   vectorStorePath: string = VECTOR_STORE_PATH
-): Promise<DynamicTool> {
+): Promise<DynamicStructuredTool> {
   try {
     const ragFunc = await ragRetrieverFunc(vectorStorePath);
 
-    return new DynamicTool({
+    return new DynamicStructuredTool({
       name: 'rag_search',
       description:
         'Используй, когда нужна конкретная информация из документов. Введи запрос пользователя как есть.',
@@ -30,12 +30,14 @@ export async function createRagRetrieverTool(
           messages: [new AIMessage(input)],
         });
       },
+      schema: z.string(),
     });
   } catch (error) {
-    return new DynamicTool({
+    return new DynamicStructuredTool({
       name: 'rag_search',
       description: 'Поиск информации в базе знаний.',
       func: async () => `Ошибка загрузки RAG: ${(error as Error).message}`,
+      schema: z.string(),
     });
   }
 }
@@ -60,9 +62,8 @@ export const ragRetrieverFunc = async (
     throw Error(`❌ Ошибка загрузки VDB:' ${error.message}`);
   }
 
-  const nodeFunc: NodeCallback = async (state: AgentState): Promise<string> => {
+  const nodeFunc: NodeCallback = async (input: string): Promise<string> => {
     if (!vectorStore) return 'Ошибка: VDB не доступна.';
-    const input = state.messages[state.messages.length - 1].content as string;
     const THRESHOLD = 0.85;
     try {
       console.log(`\n🔍 [RAG] Поиск по запросу: "${input}"`);

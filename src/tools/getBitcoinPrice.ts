@@ -1,4 +1,3 @@
-import { AgentState } from '../agent-template/AgentTemplate';
 import axios from 'axios';
 import { NodeCallback } from './types';
 
@@ -25,9 +24,7 @@ interface CmcResponse {
 const getFromCoinMarketCupUrl = (token: string = 'BTC') =>
   `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${token}&convert=USD`;
 
-export const getBitcoinPrice: NodeCallback = async (state: AgentState) => {
-  const input: string = state.messages[state.messages.length - 1]
-    .content as string;
+export const getBitcoinPrice: NodeCallback = async (input: string) => {
   const headers = {
     'X-CMC_PRO_API_KEY': process.env.COIN_MARKET_CUP_API_KEY,
     Accept: 'application/json',

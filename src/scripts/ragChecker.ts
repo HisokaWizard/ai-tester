@@ -1,6 +1,6 @@
 // useRag.ts
 import { VECTOR_STORE_PATH } from '@/rag';
-import { createRagRetrieverTool } from './ragRetrieverTool';
+import { createRagRetrieverTool } from '../tools/ragRetrieverTool';
 
 (async () => {
   const ragTool = await createRagRetrieverTool(VECTOR_STORE_PATH);
