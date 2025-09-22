@@ -71,11 +71,14 @@ export const getLLM = ({ baseURL, modelName, apiKey }: LLMParams) => {
     modelName,
     temperature: 0,
     configuration: {
-      baseURL,
+      baseURL: baseURL.trim(),
       defaultHeaders: {
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:1993',
+        'X-Title': 'AI-Testing',
       },
       apiKey,
     },
+    timeout: 30_000,
   });
 };

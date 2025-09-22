@@ -8,9 +8,8 @@
     "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 vite build",
     "rag:indexer": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/rag/runRagIndexer.js",
     "rag:check": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js",
-    "agent:check1": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGenerator.js",
-    "agent:check2": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGeneratorRag.js",
-    "agent:check3": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/agent/agentExampleCodeGeneratorCustomGraph.js",
+    "agent:check1": "npx tsx --env-file .env src/agent-examples/jsDocsWithCustomGraph.ts",
+    "agent:check2": "npx tsx --env-file .env src/agent-examples/jsDocsWithReActAgent.ts",
     "gigachat:token": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/utils/getGigaChatToken.js"
   },
   "repository": {
@@ -53,6 +52,7 @@
     "eslint-plugin-react": "7.37.5",
     "prettier": "3.5.3",
     "ts-node": "10.9.2",
+    "tsx": "4.20.5",
     "typescript": "5.5.4",
     "vite": "4.4.9"
   }

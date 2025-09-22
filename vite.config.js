@@ -43,22 +43,18 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.ts'),
         'rag/runRagIndexer': resolve(__dirname, 'src/rag/runRagIndexer.ts'),
-        'tools/ragChecker': resolve(__dirname, 'src/tools/ragChecker.ts'),
+        'tools/ragChecker': resolve(__dirname, 'src/scripts/ragChecker.ts'),
         'utils/getGigaChatToken': resolve(
           __dirname,
           'src/utils/getGigaChatToken.ts'
         ),
-        'agent/agentExampleCodeGenerator': resolve(
+        'agent/jsDocsWithCustomGraph': resolve(
           __dirname,
-          'src/agent-examples/agentExampleCodeGenerator.ts'
+          'src/agent-examples/jsDocsWithCustomGraph.ts'
         ),
-        'agent/agentExampleCodeGeneratorRag': resolve(
+        'agent/jsDocsWithReActAgent': resolve(
           __dirname,
-          'src/agent-examples/agentExampleCodeGeneratorRag.ts'
-        ),
-        'agent/agentExampleCodeGeneratorCustomGraph': resolve(
-          __dirname,
-          'src/agent-examples/agentExampleCodeGeneratorCustomGraph.ts'
+          'src/agent-examples/jsDocsWithReActAgent.ts'
         ),
       },
       output: {

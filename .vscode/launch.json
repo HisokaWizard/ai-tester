@@ -24,16 +24,13 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "tsx",
-        "--experimental-network-inspection" // Если требуется
+        "--experimental-network-inspection",
       ],
       "args": [
-        "${workspaceFolder}/src/agent-template/agentExampleCodeGenerator.ts"
+        "${workspaceFolder}/src/agent-examples/jsDocsWithCustomGraph.ts"
       ],
       "protocol": "inspector",
       "envFile": "${workspaceFolder}/.env",
-      "env": {
-        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
-      },
       "internalConsoleOptions": "openOnSessionStart",
     },
     {
@@ -43,30 +40,14 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "tsx",
-        "--experimental-network-inspection" // Если требуется
+        "--experimental-network-inspection",
       ],
       "args": [
-        "${workspaceFolder}/src/agent-template/agentExampleCodeGeneratorRag.ts"
+        "${workspaceFolder}/src/agent-examples/jsDocsWithReActAgent.ts"
       ],
       "protocol": "inspector",
       "envFile": "${workspaceFolder}/.env",
       "internalConsoleOptions": "openOnSessionStart",
     },
-    {
-      "name": "Debug Agent Script 3",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": [
-        "tsx",
-        "--experimental-network-inspection" // Если требуется
-      ],
-      "args": [
-        "${workspaceFolder}/src/agent-template/agentExampleCodeGeneratorCustomGraph.ts"
-      ],
-      "protocol": "inspector",
-      "envFile": "${workspaceFolder}/.env",
-      "internalConsoleOptions": "openOnSessionStart",
-    }
   ]
 }

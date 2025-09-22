@@ -107,7 +107,12 @@ void (async () => {
   const baseURL = 'https://openrouter.ai/api/v1';
 
   const llm = getLLM({ apiKey, modelName: 'qwen/qwen3-coder', baseURL });
-  const { lang, pathTo } = await getAgentInput();
+
+  // const { lang, pathTo } = await getAgentInput();
+  const lang = 'russian';
+  const pathTo =
+    '/Users/hisokawizard/Projects/ai-tester/src/scripts/ragChecker.ts';
+
   const workflow = new StateGraph(GraphState)
     .addNode('read_file', readNode, {})
     .addNode('generate_jsdoc', (state) => generateJSDocNode(state, lang, llm))

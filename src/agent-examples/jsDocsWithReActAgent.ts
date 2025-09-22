@@ -8,7 +8,10 @@ import { saveFile } from '@/tools/FileWriteTool';
 
 void (async () => {
   console.log("--- Запуск примера 'ИИ-агент докописец' ---");
-  const { lang, pathTo } = await getAgentInput();
+  // const { lang, pathTo } = await getAgentInput();
+  const lang = 'russian';
+  const pathTo =
+    '/Users/hisokawizard/Projects/ai-tester/src/scripts/ragChecker.ts';
   const apiKey = process.env.OPEN_ROUTER_API_KEY ?? '';
   const baseURL = 'https://openrouter.ai/api/v1';
 

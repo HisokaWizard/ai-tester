@@ -1,4 +1,4 @@
-import { DynamicStructuredTool, DynamicTool } from '@langchain/core/tools';
+import { DynamicStructuredTool, tool } from '@langchain/core/tools';
 import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
 import * as fs from 'fs';
 import {
@@ -6,8 +6,6 @@ import {
   VECTOR_STORE_PATH,
   XenovaEmbeddings,
 } from '@/rag';
-import { AIMessage } from '@langchain/core/messages';
-import { NodeCallback } from './types';
 import * as z from 'zod';
 
 const DEFAULT_TOP_K = 4;
@@ -18,26 +16,34 @@ const DEFAULT_TOP_K = 4;
 export async function createRagRetrieverTool(
   vectorStorePath: string = VECTOR_STORE_PATH
 ): Promise<DynamicStructuredTool> {
+  const schema = z.object({
+    path: z
+      .string()
+      .describe(
+        'Absolute path to the file you want to read (e.g., /home/user/project/config.json). ' +
+          "Must be a full path — relative paths like './file.txt' are not allowed. " +
+          'Ensure the file exists before calling this tool.'
+      ),
+  });
   try {
     const ragFunc = await ragRetrieverFunc(vectorStorePath);
 
-    return new DynamicStructuredTool({
-      name: 'rag_search',
-      description:
-        'Используй, когда нужна конкретная информация из документов. Введи запрос пользователя как есть.',
-      func: async (input: string) => {
-        return ragFunc({
-          messages: [new AIMessage(input)],
-        });
+    return tool(
+      (input) => {
+        return ragFunc(input.path);
       },
-      schema: z.string(),
-    });
+      {
+        name: 'rag_search',
+        description:
+          'Используй, когда нужна конкретная информация из документов. Введи запрос пользователя как есть.',
+        schema,
+      }
+    );
   } catch (error) {
-    return new DynamicStructuredTool({
+    return tool(() => `Ошибка загрузки RAG: ${(error as Error).message}`, {
       name: 'rag_search',
       description: 'Поиск информации в базе знаний.',
-      func: async () => `Ошибка загрузки RAG: ${(error as Error).message}`,
-      schema: z.string(),
+      schema,
     });
   }
 }
@@ -62,7 +68,7 @@ export const ragRetrieverFunc = async (
     throw Error(`❌ Ошибка загрузки VDB:' ${error.message}`);
   }
 
-  const nodeFunc: NodeCallback = async (input: string): Promise<string> => {
+  const nodeFunc = async (input: string): Promise<string> => {
     if (!vectorStore) return 'Ошибка: VDB не доступна.';
     const THRESHOLD = 0.85;
     try {

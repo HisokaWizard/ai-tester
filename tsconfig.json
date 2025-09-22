@@ -4,22 +4,22 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
-    "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "src",
+    "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "*"
+        "src/*"
       ]
     },
     "resolveJsonModule": true,
   },
   "include": [
-    "src",
+    "src/**/*",
     "vite-env.d.ts",
     "scripts/deploy.js"
   ],
