@@ -56,6 +56,10 @@ export default defineConfig({
           __dirname,
           'src/agent-examples/jsDocsWithReActAgent.ts'
         ),
+        'agent/coderReActAgent': resolve(
+          __dirname,
+          'src/agent-examples/coderReActAgent.ts'
+        ),
       },
       output: {
         entryFileNames: `[name].js`,

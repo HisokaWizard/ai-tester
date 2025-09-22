@@ -62,7 +62,7 @@ export function getFilesByPath(rawPath: string): string[] {
 
 interface LLMParams {
   baseURL: string;
-  modelName: 'qwen/qwen3-coder';
+  modelName: 'qwen/qwen3-coder' | 'x-ai/grok-4-fast:free';
   apiKey: string;
 }
 

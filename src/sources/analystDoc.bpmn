@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" ... >
+  <process id="CustomerCardProcess" isExecutable="false">
+    <startEvent id="StartEvent_1" name="Запрос на просмотр/редактирование карточки" />
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_LoadData" />
+
+    <task id="Task_LoadData" name="Загрузить данные клиента">
+      <incoming>Flow_1</incoming>
+      <outgoing>Flow_2</outgoing>
+    </task>
+    <sequenceFlow id="Flow_2" sourceRef="Task_LoadData" targetRef="Gateway_HasData" />
+
+    <exclusiveGateway id="Gateway_HasData" name="Данные найдены?">
+      <incoming>Flow_2</incoming>
+      <outgoing>Flow_3</outgoing>
+      <outgoing>Flow_4</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="Flow_3" sourceRef="Gateway_HasData" targetRef="Task_DisplayCard">
+      <conditionExpression xsi:type="tFormalExpression">dataExists == true</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_4" sourceRef="Gateway_HasData" targetRef="Task_CreateNewCard">
+      <conditionExpression xsi:type="tFormalExpression">dataExists == false</conditionExpression>
+    </sequenceFlow>
+
+    <task id="Task_DisplayCard" name="Отобразить карточку клиента">
+      <incoming>Flow_3</incoming>
+      <outgoing>Flow_5</outgoing>
+    </task>
+    <sequenceFlow id="Flow_5" sourceRef="Task_DisplayCard" targetRef="Gateway_UserAction" />
+
+    <task id="Task_CreateNewCard" name="Создать новую карточку клиента">
+      <incoming>Flow_4</incoming>
+      <outgoing>Flow_6</outgoing>
+    </task>
+    <sequenceFlow id="Flow_6" sourceRef="Task_CreateNewCard" targetRef="Gateway_UserAction" />
+
+    <exclusiveGateway id="Gateway_UserAction" name="Действие пользователя">
+      <incoming>Flow_5</incoming>
+      <incoming>Flow_6</incoming>
+      <outgoing>Flow_7</outgoing>
+      <outgoing>Flow_8</outgoing>
+      <outgoing>Flow_9</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="Flow_7" sourceRef="Gateway_UserAction" targetRef="Task_EditData">
+      <conditionExpression xsi:type="tFormalExpression">action == "EDIT"</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_8" sourceRef="Gateway_UserAction" targetRef="Task_AddInteraction">
+      <conditionExpression xsi:type="tFormalExpression">action == "ADD_INTERACTION"</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_9" sourceRef="Gateway_UserAction" targetRef="EndEvent_1">
+      <conditionExpression xsi:type="tFormalExpression">action == "CLOSE"</conditionExpression>
+    </sequenceFlow>
+
+    <task id="Task_EditData" name="Редактировать данные">
+      <incoming>Flow_7</incoming>
+      <outgoing>Flow_10</outgoing>
+    </task>
+    <sequenceFlow id="Flow_10" sourceRef="Task_EditData" targetRef="Task_SaveData" />
+
+    <task id="Task_AddInteraction" name="Добавить взаимодействие">
+      <incoming>Flow_8</incoming>
+      <outgoing>Flow_11</outgoing>
+    </task>
+    <sequenceFlow id="Flow_11" sourceRef="Task_AddInteraction" targetRef="Task_SaveInteraction" />
+
+    <task id="Task_SaveData" name="Сохранить изменения">
+      <incoming>Flow_10</incoming>
+      <outgoing>Flow_12</outgoing>
+    </task>
+    <sequenceFlow id="Flow_12" sourceRef="Task_SaveData" targetRef="Task_DisplayCard" />
+
+    <task id="Task_SaveInteraction" name="Сохранить взаимодействие">
+      <incoming>Flow_11</incoming>
+      <outgoing>Flow_13</outgoing>
+    </task>
+    <sequenceFlow id="Flow_13" sourceRef="Task_SaveInteraction" targetRef="Task_DisplayCard" />
+
+    <endEvent id="EndEvent_1" name="Карточка закрыта" />
+    <sequenceFlow id="Flow_9" sourceRef="Gateway_UserAction" targetRef="EndEvent_1" />
+
+  </process>
+</definitions>

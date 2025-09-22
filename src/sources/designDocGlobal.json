@@ -1,0 +1,140 @@
+{
+  "color": {
+    "primary": {
+      "value": "#1a73e8",
+      "type": "color"
+    },
+    "primary-hover": {
+      "value": "#1557b0",
+      "type": "color"
+    },
+    "secondary": {
+      "value": "#f1f3f4",
+      "type": "color"
+    },
+    "text-primary": {
+      "value": "#202124",
+      "type": "color"
+    },
+    "text-secondary": {
+      "value": "#5f6368",
+      "type": "color"
+    },
+    "border": {
+      "value": "#dadce0",
+      "type": "color"
+    },
+    "background": {
+      "value": "#ffffff",
+      "type": "color"
+    },
+    "success": {
+      "value": "#34a853",
+      "type": "color"
+    },
+    "warning": {
+      "value": "#fbbc04",
+      "type": "color"
+    },
+    "error": {
+      "value": "#ea4335",
+      "type": "color"
+    }
+  },
+  "spacing": {
+    "xxs": {
+      "value": "4px",
+      "type": "number"
+    },
+    "xs": {
+      "value": "8px",
+      "type": "number"
+    },
+    "s": {
+      "value": "12px",
+      "type": "number"
+    },
+    "m": {
+      "value": "16px",
+      "type": "number"
+    },
+    "l": {
+      "value": "24px",
+      "type": "number"
+    },
+    "xl": {
+      "value": "32px",
+      "type": "number"
+    },
+    "xxl": {
+      "value": "48px",
+      "type": "number"
+    }
+  },
+  "typography": {
+    "font-family-base": {
+      "value": "Roboto, Arial, sans-serif",
+      "type": "text"
+    },
+    "font-size-h1": {
+      "value": "32px",
+      "type": "text"
+    },
+    "font-size-h2": {
+      "value": "24px",
+      "type": "text"
+    },
+    "font-size-h3": {
+      "value": "20px",
+      "type": "text"
+    },
+    "font-size-body": {
+      "value": "16px",
+      "type": "text"
+    },
+    "font-size-small": {
+      "value": "14px",
+      "type": "text"
+    },
+    "font-weight-regular": {
+      "value": "400",
+      "type": "number"
+    },
+    "font-weight-medium": {
+      "value": "500",
+      "type": "number"
+    },
+    "font-weight-bold": {
+      "value": "700",
+      "type": "number"
+    },
+    "line-height-base": {
+      "value": "1.5",
+      "type": "number"
+    }
+  },
+  "border": {
+    "radius-s": {
+      "value": "4px",
+      "type": "number"
+    },
+    "radius-m": {
+      "value": "8px",
+      "type": "number"
+    },
+    "width": {
+      "value": "1px",
+      "type": "number"
+    }
+  },
+  "shadow": {
+    "elevation-1": {
+      "value": "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+      "type": "text"
+    },
+    "elevation-2": {
+      "value": "0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)",
+      "type": "text"
+    }
+  }
+}

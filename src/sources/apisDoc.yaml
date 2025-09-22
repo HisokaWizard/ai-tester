@@ -1,0 +1,421 @@
+openapi: 3.1.0
+info:
+  title: Customer Profile API
+  description: API для управления карточками клиентов (компаний/холдингов).
+  version: 1.0.0
+servers:
+  - url: https://api.yourcompany.com/v1
+    description: Production server
+
+tags:
+  - name: Customers
+    description: Операции с карточками клиентов
+
+paths:
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: Получить список клиентов
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Поисковый запрос (название, ИНН)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Номер страницы
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Количество записей на странице
+      responses:
+        '200':
+          description: Список клиентов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CustomerSummary'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Customers
+      summary: Создать нового клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: Клиент успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customers/{customerId}:
+    get:
+      tags:
+        - Customers
+      summary: Получить полную карточку клиента
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: Уникальный идентификатор клиента
+      responses:
+        '200':
+          description: Полная карточка клиента
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Клиент не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Customers
+      summary: Обновить данные клиента
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: string
+          description: Уникальный идентификатор клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+      responses:
+        '200':
+          description: Данные клиента обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Клиент не найден
+
+components:
+  schemas:
+    CustomerSummary:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: string
+          example: 'cust_12345'
+        name:
+          type: string
+          example: 'ООО Ромашка'
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, PROSPECT]
+          example: 'ACTIVE'
+        industry:
+          type: string
+          example: 'Розничная торговля'
+        lastInteractionDate:
+          type: string
+          format: date-time
+          example: '2025-09-20T10:00:00Z'
+
+    Customer:
+      allOf:
+        - $ref: '#/components/schemas/CustomerSummary'
+        - type: object
+          properties:
+            legalName:
+              type: string
+              example: "Общество с ограниченной ответственностью 'Ромашка'"
+            taxId:
+              type: string
+              example: '1234567890'
+            registrationDate:
+              type: string
+              format: date
+              example: '2020-01-15'
+            address:
+              $ref: '#/components/schemas/Address'
+            contacts:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContactPerson'
+            contracts:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContractSummary'
+            statistics:
+              $ref: '#/components/schemas/CustomerStatistics'
+            interactionLog:
+              type: array
+              items:
+                $ref: '#/components/schemas/InteractionLogEntry'
+
+    CustomerCreate:
+      type: object
+      required:
+        - name
+        - legalName
+        - taxId
+      properties:
+        name:
+          type: string
+          example: 'ООО Ромашка'
+        legalName:
+          type: string
+          example: "Общество с ограниченной ответственностью 'Ромашка'"
+        taxId:
+          type: string
+          example: '1234567890'
+        industry:
+          type: string
+          example: 'Розничная торговля'
+        address:
+          $ref: '#/components/schemas/Address'
+        primaryContact:
+          $ref: '#/components/schemas/ContactPersonCreate'
+
+    CustomerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'ООО Ромашка Плюс'
+        industry:
+          type: string
+          example: 'Оптовая и розничная торговля'
+        address:
+          $ref: '#/components/schemas/Address'
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, PROSPECT]
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          example: 'ул. Ленина, д. 1'
+        city:
+          type: string
+          example: 'Москва'
+        postalCode:
+          type: string
+          example: '101000'
+        country:
+          type: string
+          example: 'Россия'
+
+    ContactPerson:
+      type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - role
+      properties:
+        id:
+          type: string
+          example: 'cont_67890'
+        firstName:
+          type: string
+          example: 'Иван'
+        lastName:
+          type: string
+          example: 'Иванов'
+        middleName:
+          type: string
+          example: 'Иванович'
+        role:
+          type: string
+          example: 'Генеральный директор'
+        email:
+          type: string
+          format: email
+          example: 'i.ivanov@romashka.ru'
+        phone:
+          type: string
+          example: '+7 (495) 123-45-67'
+
+    ContactPersonCreate:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - role
+        - email
+      properties:
+        firstName:
+          type: string
+          example: 'Иван'
+        lastName:
+          type: string
+          example: 'Иванов'
+        middleName:
+          type: string
+          example: 'Иванович'
+        role:
+          type: string
+          example: 'Генеральный директор'
+        email:
+          type: string
+          format: email
+          example: 'i.ivanov@romashka.ru'
+        phone:
+          type: string
+          example: '+7 (495) 123-45-67'
+
+    ContractSummary:
+      type: object
+      required:
+        - id
+        - number
+        - startDate
+        - status
+      properties:
+        id:
+          type: string
+          example: 'ctr_54321'
+        number:
+          type: string
+          example: 'ДОГ-2025-001'
+        startDate:
+          type: string
+          format: date
+          example: '2025-01-01'
+        endDate:
+          type: string
+          format: date
+          example: '2026-01-01'
+        status:
+          type: string
+          enum: [ACTIVE, EXPIRED, TERMINATED]
+          example: 'ACTIVE'
+        value:
+          type: number
+          format: double
+          example: 1000000.00
+
+    CustomerStatistics:
+      type: object
+      properties:
+        totalContractValue:
+          type: number
+          format: double
+          example: 2500000.00
+        activeContractsCount:
+          type: integer
+          example: 3
+        lastYearRevenue:
+          type: number
+          format: double
+          example: 1800000.00
+        satisfactionScore:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 8
+
+    InteractionLogEntry:
+      type: object
+      required:
+        - id
+        - date
+        - type
+        - author
+        - summary
+      properties:
+        id:
+          type: string
+          example: 'int_98765'
+        date:
+          type: string
+          format: date-time
+          example: '2025-09-20T14:30:00Z'
+        type:
+          type: string
+          enum: [CALL, MEETING, EMAIL, NOTE]
+          example: 'MEETING'
+        author:
+          type: string
+          example: 'Петров А.С.'
+        summary:
+          type: string
+          example: 'Обсуждение условий продления контракта.'
+
+    PaginationMeta:
+      type: object
+      required:
+        - total
+        - page
+        - limit
+      properties:
+        total:
+          type: integer
+          example: 150
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: 'NOT_FOUND'
+        message:
+          type: string
+          example: "Customer with ID 'cust_12345' not found."

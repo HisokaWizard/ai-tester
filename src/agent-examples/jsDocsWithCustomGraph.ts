@@ -106,7 +106,7 @@ void (async () => {
   const apiKey = process.env.OPEN_ROUTER_API_KEY ?? '';
   const baseURL = 'https://openrouter.ai/api/v1';
 
-  const llm = getLLM({ apiKey, modelName: 'qwen/qwen3-coder', baseURL });
+  const llm = getLLM({ apiKey, modelName: 'x-ai/grok-4-fast:free', baseURL });
 
   // const { lang, pathTo } = await getAgentInput();
   const lang = 'russian';

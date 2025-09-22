@@ -10,6 +10,7 @@
     "rag:check": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/tools/ragChecker.js",
     "agent:check1": "npx tsx --env-file .env src/agent-examples/jsDocsWithCustomGraph.ts",
     "agent:check2": "npx tsx --env-file .env src/agent-examples/jsDocsWithReActAgent.ts",
+    "agent:check3": "npx tsx --env-file .env src/agent-examples/coderReActAgent.ts",
     "gigachat:token": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node dist/utils/getGigaChatToken.js"
   },
   "repository": {
