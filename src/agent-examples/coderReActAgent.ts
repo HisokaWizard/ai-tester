@@ -30,7 +30,7 @@ function validateAndParseCodeOutput(rawText: string) {
   const baseURL = 'https://openrouter.ai/api/v1';
   const llm = getLLM({ baseURL, apiKey, modelName: 'x-ai/grok-4-fast:free' });
 
-  const tools = [saveFile, readFile, saveFiles, createRepo];
+  const tools = [readFile, createRepo];
   const logger = new SimpleAgentLogger();
 
   const agent = createReactAgent({

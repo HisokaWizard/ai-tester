@@ -60,6 +60,10 @@ export default defineConfig({
           __dirname,
           'src/agent-examples/coderReActAgent.ts'
         ),
+        'agent/coderCustomGraphAgent': resolve(
+          __dirname,
+          'src/agent-examples/coderCustomGraphAgent.ts'
+        ),
       },
       output: {
         entryFileNames: `[name].js`,

@@ -84,12 +84,15 @@ export class SimpleAgentLogger extends BaseCallbackHandler {
 
   handleLLMEnd(output: LLMResult) {
     const contentResponse = output.generations?.[0]?.[0]?.text || '';
+    const contentToolCallsResponse = (
+      output.generations?.[0]?.[0] as any
+    )?.message?.tool_calls
+      ?.map((tool: any) => tool.name)
+      .join(',');
 
     const response = contentResponse
       ? contentResponse
-      : 'tool_calls: ' +
-        ((output.generations?.[0]?.[0] as any)?.message?.tool_calls?.[0]
-          ?.name ?? '');
+      : 'tool_calls: ' + contentToolCallsResponse;
 
     this.log(
       `✅ LLM end`,

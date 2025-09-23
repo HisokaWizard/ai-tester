@@ -65,5 +65,21 @@
       "envFile": "${workspaceFolder}/.env",
       "internalConsoleOptions": "openOnSessionStart",
     },
+    {
+      "name": "Debug Coder Custom Graph",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx",
+        "--experimental-network-inspection",
+      ],
+      "args": [
+        "${workspaceFolder}/src/agent-examples/coderCustomGraphAgent.ts"
+      ],
+      "protocol": "inspector",
+      "envFile": "${workspaceFolder}/.env",
+      "internalConsoleOptions": "openOnSessionStart",
+    },
   ]
 }
