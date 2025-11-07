@@ -7,13 +7,16 @@ async function getFloorPrices(collections) {
 
   const results = {};
 
-  // Функция для задержки
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  // Константа для задержки
+  const DELAY = 500;
 
-  const promises = collections.map(async (slug) => {
+  // Функция для задержки
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  for (const slug of collections) {
     try {
-      // Искусственная задержка 1-2 секунды перед каждым запросом
-      await delay(Math.random() * 1000 + 1000);
+      // Задержка 500 миллисекунд перед каждым запросом
+      await delay(DELAY);
       const response = await axios.get(
         `https://api.opensea.io/api/v2/collections/${slug}/stats`,
         {
@@ -28,9 +31,7 @@ async function getFloorPrices(collections) {
       console.error(`Ошибка при получении данных для ${slug}:`, error.message);
       results[slug] = null;
     }
-  });
-
-  await Promise.all(promises);
+  }
   return results;
 }
 

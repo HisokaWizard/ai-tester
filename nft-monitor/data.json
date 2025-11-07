@@ -1,0 +1,578 @@
+{
+  "degen-ape": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 15.5
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 15.5
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 15.5
+      }
+    ]
+  },
+  "hv-mtl": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.039843
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.039843
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.039843
+      }
+    ]
+  },
+  "foxyfits": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 2.97
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 2.97
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 2.97
+      }
+    ]
+  },
+  "mullet-cop": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 114
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 114
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 114
+      }
+    ]
+  },
+  "new-eden-keycard": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.005
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.0053
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.0053
+      }
+    ]
+  },
+  "not-a-punks-cult": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 38.978
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 38.978
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 38.959
+      }
+    ]
+  },
+  "uprising-genesis-origins": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.020298
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.020298
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.020298
+      }
+    ]
+  },
+  "lilpudgys": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.73
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.73
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.73
+      }
+    ]
+  },
+  "ngmi-goobs": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 34
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 34
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 34
+      }
+    ]
+  },
+  "jnkyz": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 82.29
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 82.29
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 82.29
+      }
+    ]
+  },
+  "op-wearables": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 197
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 197
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 197
+      }
+    ]
+  },
+  "grillzgang": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.0054
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.0054
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.0054
+      }
+    ]
+  },
+  "boredapeyachtclub": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 5.83
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 5.83
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 5.83
+      }
+    ]
+  },
+  "otherdeed-expanded": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.13199
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.13199
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.132
+      }
+    ]
+  },
+  "pepeverse-drop": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.005699
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.005699
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.005699
+      }
+    ]
+  },
+  "gs-on-ape": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 987
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 987
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 987
+      }
+    ]
+  },
+  "sr-bounty-hunters": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.004668
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.004668
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.004668
+      }
+    ]
+  },
+  "somzies-somnia": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 96.3799999
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 96.3399999
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 96.2599999
+      }
+    ]
+  },
+  "clonex": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.139497
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.139497
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.139497
+      }
+    ]
+  },
+  "gemesis": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.016099
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.016099
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.016099
+      }
+    ]
+  },
+  "the-sons-of-evil-13141351": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 290
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 290
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 290
+      }
+    ]
+  },
+  "nightglyders": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 118.5660121
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 118.5418484
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 118.5273943
+      }
+    ]
+  },
+  "pudgypenguins": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 5.81
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 5.81
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 5.81
+      }
+    ]
+  },
+  "yuppie-apes": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 8.9
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 8.9
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 8.9
+      }
+    ]
+  },
+  "foxyfam": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 91.129
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 91.129
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 91.129
+      }
+    ]
+  },
+  "invasion-heroes-pfp": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 4.2699999
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 4.2299999
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 4.1499999
+      }
+    ]
+  },
+  "neuronemesis": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 77.88
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 77.88
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 77.86
+      }
+    ]
+  },
+  "otherside-koda": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.89
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.89
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.89
+      }
+    ]
+  },
+  "quills-adventure-somnia": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 575.86
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 570.99
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 569.48
+      }
+    ]
+  },
+  "pixcape-genesis-pass-somnia": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 269.95
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 269.93
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 269.93
+      }
+    ]
+  },
+  "variance-collection": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 139.1
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 139.1
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 138
+      }
+    ]
+  },
+  "mutant-ape-yacht-club": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.901
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.9009
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.9009
+      }
+    ]
+  },
+  "marsaliencats": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 0.00126
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 0.00126
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 0.00126
+      }
+    ]
+  },
+  "dawn-of-the-duck-2": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 10.9999999
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 10.9999999
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 10.9999999
+      }
+    ]
+  },
+  "allopass": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 418.999
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 418.999
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 418.999
+      }
+    ]
+  },
+  "stargirl-salon": {
+    "history": [
+      {
+        "timestamp": "2025-11-07T20:10:44.499Z",
+        "price": 148.97
+      },
+      {
+        "timestamp": "2025-11-07T20:15:19.204Z",
+        "price": 148.97
+      },
+      {
+        "timestamp": "2025-11-07T20:23:26.771Z",
+        "price": 148.97
+      }
+    ]
+  }
+}

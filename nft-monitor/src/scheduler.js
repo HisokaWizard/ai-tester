@@ -126,26 +126,22 @@ async function updatePricesJob() {
     );
 
     // Отправка персонализированных алертов каждому получателю
-    for (const [recipientKey, recipientEmail] of Object.entries(
-      EMAIL_RECIPIENTS
-    )) {
-      const recipientCollections = nft_mapping[recipientKey] || [];
-      console.log(
-        `Для ${recipientKey} (${recipientEmail}): коллекции`,
-        recipientCollections
-      );
+    for (const [_baseKey, recipient] of Object.entries(EMAIL_RECIPIENTS)) {
+      const { key, email } = recipient;
+      const recipientCollections = nft_mapping[key] || [];
+      console.log(`Для ${key} (${email}): коллекции`, recipientCollections);
       const filteredSignificantChanges = significantChanges.filter(([slug]) =>
         recipientCollections.includes(slug)
       );
       console.log(
-        `Фильтрованные изменения для ${recipientKey}:`,
+        `Фильтрованные изменения для ${key}:`,
         filteredSignificantChanges
       );
       if (filteredSignificantChanges.length > 0) {
-        console.log(`Отправка алерта для ${recipientKey}`);
-        await sendAlertReport(filteredSignificantChanges, recipientEmail);
+        console.log(`Отправка алерта для ${key}`);
+        await sendAlertReport(filteredSignificantChanges, email);
       } else {
-        console.log(`Нет значительных изменений для ${recipientKey}`);
+        console.log(`Нет значительных изменений для ${key}`);
       }
     }
 
@@ -166,7 +162,6 @@ cron.schedule('0 9 * * *', async () => {
     console.log('Запуск ежедневного отчета...');
     const { loadData } = require('./data');
     const data = await loadData();
-    const now = new Date().toISOString();
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const changes = {};
@@ -188,17 +183,16 @@ cron.schedule('0 9 * * *', async () => {
     }
 
     // Отправка персонализированных ежедневных отчетов каждому получателю
-    for (const [recipientKey, recipientEmail] of Object.entries(
-      EMAIL_RECIPIENTS
-    )) {
-      const recipientCollections = nft_mapping[recipientKey] || [];
+    for (const [_baseKey, recipient] of Object.entries(EMAIL_RECIPIENTS)) {
+      const { key, email } = recipient;
+      const recipientCollections = nft_mapping[key] || [];
       const filteredChanges = Object.fromEntries(
         Object.entries(changes).filter(([slug]) =>
           recipientCollections.includes(slug)
         )
       );
       if (Object.keys(filteredChanges).length > 0) {
-        await sendDailyReport(filteredChanges, recipientEmail);
+        await sendDailyReport(filteredChanges, email);
       }
     }
     console.log('Ежедневный отчет отправлен');
