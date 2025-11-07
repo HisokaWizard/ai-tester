@@ -62,6 +62,7 @@ const nft_mapping = {
     'foxyfam',
     'yuppie-apes',
     'ngmi-goobs',
+    'otterful-otters',
   ],
 };
 
@@ -103,6 +104,7 @@ const COLLECTIONS = [
   'foxyfam',
   'yuppie-apes',
   'ngmi-goobs',
+  'otterful-otters',
 ];
 
 // Основная функция обновления цен
