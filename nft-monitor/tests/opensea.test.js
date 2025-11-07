@@ -11,47 +11,49 @@ describe('getFloorPrices', () => {
   });
 
   it('должен возвращать цены для коллекций', async () => {
-    const collections = ['collection1', 'collection2'];
+    const collections = ['mutant-ape-yacht-club', 'variance-collection'];
     const mockResponse1 = { data: { total: { floor_price: 1.5 } } };
     const mockResponse2 = { data: { total: { floor_price: 2.0 } } };
 
     mockedAxios.get.mockImplementation((url) => {
-      if (url.includes('collection1')) return Promise.resolve(mockResponse1);
-      if (url.includes('collection2')) return Promise.resolve(mockResponse2);
+      if (url.includes('mutant-ape-yacht-club'))
+        return Promise.resolve(mockResponse1);
+      if (url.includes('variance-collection'))
+        return Promise.resolve(mockResponse2);
     });
 
     const result = await getFloorPrices(collections);
 
     expect(result).toEqual({
-      collection1: 1.5,
-      collection2: 2.0,
+      'mutant-ape-yacht-club': 1.5,
+      'variance-collection': 2.0,
     });
     expect(mockedAxios.get).toHaveBeenCalledTimes(2);
   });
 
   it('должен возвращать null для коллекций с ошибкой', async () => {
-    const collections = ['collection1', 'collection2'];
+    const collections = ['mutant-ape-yacht-club', 'variance-collection'];
 
     mockedAxios.get.mockImplementation((url) => {
-      if (url.includes('collection1'))
+      if (url.includes('mutant-ape-yacht-club'))
         return Promise.reject(new Error('API error'));
-      if (url.includes('collection2'))
+      if (url.includes('variance-collection'))
         return Promise.resolve({ data: { total: { floor_price: 2.0 } } });
     });
 
     const result = await getFloorPrices(collections);
 
     expect(result).toEqual({
-      collection1: null,
-      collection2: 2.0,
+      'mutant-ape-yacht-club': null,
+      'variance-collection': 2.0,
     });
   });
 
-  it('должен выбрасывать ошибку если коллекций больше 25', async () => {
-    const collections = new Array(26).fill('collection');
+  it('должен выбрасывать ошибку если коллекций больше 50', async () => {
+    const collections = new Array(51).fill('collection');
 
     await expect(getFloorPrices(collections)).rejects.toThrow(
-      'Максимум 25 коллекций'
+      'Максимум 50 коллекций'
     );
   });
 

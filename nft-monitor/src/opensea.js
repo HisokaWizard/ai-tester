@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 async function getFloorPrices(collections) {
-  if (collections.length > 25) {
-    throw new Error('Максимум 25 коллекций');
+  if (collections.length > 50) {
+    throw new Error('Максимум 50 коллекций');
   }
 
   const results = {};
