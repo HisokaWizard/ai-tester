@@ -2,9 +2,11 @@ const cron = require('node-cron');
 const { getFloorPrices } = require('./opensea');
 const { updatePrices } = require('./data');
 const { sendAlertReport, sendDailyReport } = require('./email');
+const fs = require('fs');
 
-// Парсинг переменной окружения EMAIL_RECIPIENTS как JSON-объекта
-const EMAIL_RECIPIENTS = JSON.parse(process.env.EMAIL_RECIPIENTS || '{}');
+const EMAIL_RECIPIENTS = JSON.parse(
+  fs.readFileSync('email.config.json', 'utf8')
+);
 
 // Объект nft_mapping с примерами
 const nft_mapping = {
@@ -107,8 +109,6 @@ const COLLECTIONS = [
 async function updatePricesJob() {
   try {
     console.log('Запуск обновления цен...');
-    console.log('COLLECTIONS:', COLLECTIONS);
-    console.log('EMAIL_RECIPIENTS:', EMAIL_RECIPIENTS);
 
     // Получение цен
     const newPrices = await getFloorPrices(COLLECTIONS);

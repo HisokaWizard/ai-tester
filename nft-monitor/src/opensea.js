@@ -7,8 +7,13 @@ async function getFloorPrices(collections) {
 
   const results = {};
 
+  // Функция для задержки
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   const promises = collections.map(async (slug) => {
     try {
+      // Искусственная задержка 1-2 секунды перед каждым запросом
+      await delay(Math.random() * 1000 + 1000);
       const response = await axios.get(
         `https://api.opensea.io/api/v2/collections/${slug}/stats`,
         {
