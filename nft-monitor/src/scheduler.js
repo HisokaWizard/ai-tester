@@ -21,10 +21,17 @@ const nft_mapping = {
     'pudgypenguins',
     'lilpudgys',
     'boredapeyachtclub',
-    'uprising-genesis-origins',
     'somzies-somnia',
-    'pixcape-genesis-pass-somnia',
     'invasion-heroes-pfp',
+    'mullet-cop',
+    'the-sons-of-evil-13141351',
+    'capygame-417488844',
+    'neuronemesis',
+    'op-wearables',
+    'mintotaurs-ape',
+    'foxyfam',
+    'oppass',
+    'founder-simulator-genesis',
   ],
   fedor: [
     'mutant-ape-yacht-club',
@@ -63,6 +70,9 @@ const nft_mapping = {
     'yuppie-apes',
     'ngmi-goobs',
     'otterful-otters',
+    'capygame-417488844',
+    'oppass',
+    'founder-simulator-genesis',
   ],
 };
 
@@ -105,6 +115,8 @@ const COLLECTIONS = [
   'yuppie-apes',
   'ngmi-goobs',
   'otterful-otters',
+  'mintotaurs-ape',
+  'oppass',
 ];
 
 // Основная функция обновления цен
